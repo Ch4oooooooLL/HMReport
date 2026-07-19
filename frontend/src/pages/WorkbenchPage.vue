@@ -42,27 +42,27 @@ const filteredHotspots = computed(() => hotspots.value.filter((item) =>
 
 const menuGroups = [
   {
-    category: '📌 概览与控制',
+    category: '概览与控制',
     items: [
-      ['overview', '项目概览', '01', '📊'],
-      ['run', 'Run 概览与 DAG', '02', '⚡'],
+      ['overview', '项目概览', '01'],
+      ['run', 'Run 概览与 DAG', '02'],
     ]
   },
   {
-    category: '🔍 模型与物理场',
+    category: '模型与物理场',
     items: [
-      ['model', '模型信息', '03', '📦'],
-      ['mesh', '网格信息', '04', '🕸'],
-      ['materials', '材料与属性', '05', '🧪'],
-      ['boundary', '边界条件', '06', '⚓'],
-      ['subcases', '子工况', '07', '📋'],
+      ['model', '模型信息', '03'],
+      ['mesh', '网格信息', '04'],
+      ['materials', '材料与属性', '05'],
+      ['boundary', '边界条件', '06'],
+      ['subcases', '子工况', '07'],
     ]
   },
   {
-    category: '🎯 结果与成果',
+    category: '结果与成果',
     items: [
-      ['hotspots', '结果热点', '08', '🔥'],
-      ['report', '工程报告', '09', '📄'],
+      ['hotspots', '结果热点', '08'],
+      ['report', '工程报告', '09'],
     ]
   }
 ]
@@ -206,10 +206,10 @@ function getTaskStatusClass(taskType: string) {
 function getTaskStatusText(taskType: string) {
   const task = store.run?.tasks.find((t) => t.task_type === taskType)
   if (!task) return '等待中'
-  if (task.status === 'completed') return '✔ 已完成'
-  if (task.status === 'running') return '⚙ 运行中'
-  if (task.status === 'failed') return '✖ 失败'
-  return '⏳ 排队'
+  if (task.status === 'completed') return '已完成'
+  if (task.status === 'running') return '运行中'
+  if (task.status === 'failed') return '失败'
+  return '排队'
 }
 </script>
 
@@ -235,7 +235,6 @@ function getTaskStatusText(taskType: string) {
             :class="{ active: activePage === item[0] }"
             @click="loadPage(item[0])"
           >
-            <span class="icon">{{ item[3] }}</span>
             <span class="text">{{ item[1] }}</span>
             <span class="num">{{ item[2] }}</span>
           </button>
@@ -324,21 +323,18 @@ function getTaskStatusText(taskType: string) {
             <div class="dag-phase">
               <div class="phase-title">Phase 1: FEM 解析</div>
               <div class="dag-node" :class="getTaskStatusClass('fem.model_summary')">
-                <span class="node-icon">📦</span>
                 <div class="node-info">
                   <strong>fem.model_summary</strong>
                   <small>{{ getTaskStatusText('fem.model_summary') }}</small>
                 </div>
               </div>
               <div class="dag-node" :class="getTaskStatusClass('fem.mesh_summary')">
-                <span class="node-icon">🕸</span>
                 <div class="node-info">
                   <strong>fem.mesh_summary</strong>
                   <small>{{ getTaskStatusText('fem.mesh_summary') }}</small>
                 </div>
               </div>
               <div class="dag-node" :class="getTaskStatusClass('fem.subcases')">
-                <span class="node-icon">📋</span>
                 <div class="node-info">
                   <strong>fem.subcases</strong>
                   <small>{{ getTaskStatusText('fem.subcases') }}</small>
@@ -351,21 +347,18 @@ function getTaskStatusText(taskType: string) {
             <div class="dag-phase">
               <div class="phase-title">Phase 2: H3D & 热点提取</div>
               <div class="dag-node" :class="getTaskStatusClass('h3d.result_index')">
-                <span class="node-icon">🔍</span>
                 <div class="node-info">
                   <strong>h3d.result_index</strong>
                   <small>{{ getTaskStatusText('h3d.result_index') }}</small>
                 </div>
               </div>
               <div class="dag-node" :class="getTaskStatusClass('result.stress_hotspots')">
-                <span class="node-icon">🔥</span>
                 <div class="node-info">
                   <strong>result.stress_hotspots</strong>
                   <small>{{ getTaskStatusText('result.stress_hotspots') }}</small>
                 </div>
               </div>
               <div class="dag-node" :class="getTaskStatusClass('result.displacement_hotspots')">
-                <span class="node-icon">📐</span>
                 <div class="node-info">
                   <strong>result.displacement_hotspots</strong>
                   <small>{{ getTaskStatusText('result.displacement_hotspots') }}</small>
@@ -378,14 +371,12 @@ function getTaskStatusText(taskType: string) {
             <div class="dag-phase">
               <div class="phase-title">Phase 3: 截图与报告</div>
               <div class="dag-node" :class="getTaskStatusClass('capture.standard_views')">
-                <span class="node-icon">📷</span>
                 <div class="node-info">
                   <strong>capture.standard_views</strong>
                   <small>{{ getTaskStatusText('capture.standard_views') }}</small>
                 </div>
               </div>
               <div class="dag-node" :class="getTaskStatusClass('report.prepare')">
-                <span class="node-icon">📄</span>
                 <div class="node-info">
                   <strong>report.prepare</strong>
                   <small>{{ getTaskStatusText('report.prepare') }}</small>
@@ -492,7 +483,6 @@ aside { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: 
 .nav-groups { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; padding-right: 2px; }
 .nav-category { font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 6px 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 .nav-groups button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-radius: 8px; background: transparent; color: #94a3b8; text-align: left; padding: 9px 10px; cursor: pointer; transition: all 0.15s ease; }
-.nav-groups button .icon { font-size: 14px; }
 .nav-groups button .text { font-size: 13px; flex: 1; }
 .nav-groups button .num { color: #475569; font-family: var(--font-mono); font-size: 10px; }
 .nav-groups button:hover { background: #ffffff0e; color: white; }
@@ -528,7 +518,6 @@ main { min-width: 0; }
 .dag-node.task-running { border-color: #0284c7; background: #f0f9ff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
 .dag-node.task-failed { border-color: #ef4444; background: #fef2f2; }
 .dag-node.task-pending { opacity: 0.6; }
-.node-icon { font-size: 16px; }
 .node-info strong { display: block; font-size: 12px; color: #0f172a; }
 .node-info small { font-size: 10px; color: #64748b; }
 .dag-arrow { color: #94a3b8; font-size: 18px; font-weight: bold; }
@@ -598,4 +587,5 @@ pre { max-height: 310px; overflow: auto; padding: 14px; background: #f8fafc; col
 
 @media (max-width: 1280px) { .metrics.six { grid-template-columns: repeat(3, 1fr); } }
 </style>
+
 

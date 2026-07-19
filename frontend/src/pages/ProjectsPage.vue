@@ -50,9 +50,7 @@ const filteredProjects = computed(() => {
             placeholder="搜索项目名称、编号或求解器..."
             clearable
             style="width: 280px"
-          >
-            <template #prefix>🔍</template>
-          </el-input>
+          />
           
           <el-radio-group v-model="selectedStatus" size="default">
             <el-radio-button label="all">全部</el-radio-button>
@@ -61,7 +59,7 @@ const filteredProjects = computed(() => {
             <el-radio-button label="draft">草稿</el-radio-button>
           </el-radio-group>
           
-          <el-tag type="success" effect="light" class="offline-tag">🟢 离线可用</el-tag>
+          <el-tag type="success" effect="light" class="offline-tag">离线可用</el-tag>
         </div>
       </div>
 
@@ -80,9 +78,9 @@ const filteredProjects = computed(() => {
           <h3 class="project-title">{{ project.name }}</h3>
           
           <div class="project-meta">
-            <span class="meta-item">🛠 {{ project.solver || 'OptiStruct' }}</span>
-            <span class="meta-item">📏 {{ project.unit_system || 'mm-N-MPa' }}</span>
-            <span class="meta-item">📊 {{ project.analysis_type || '线性静力学' }}</span>
+            <span class="meta-item">求解器: {{ project.solver || 'OptiStruct' }}</span>
+            <span class="meta-item">单位制: {{ project.unit_system || 'mm-N-MPa' }}</span>
+            <span class="meta-item">类型: {{ project.analysis_type || '线性静力学' }}</span>
           </div>
 
           <div class="card-footer">
@@ -279,5 +277,6 @@ const filteredProjects = computed(() => {
   color: var(--primary-hover);
 }
 </style>
+
 
 

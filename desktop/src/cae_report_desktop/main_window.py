@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.workspace = workspace
         self.setWindowTitle("CAE 结果分析与报告工作台 (HMReport)")
-        self.resize(1280, 840)
+        self.resize(1280, 820)
         self.client: ServerClient | None = None
         self.projects: list[dict[str, Any]] = []
         self.current_project: dict[str, Any] | None = None
@@ -55,21 +55,21 @@ class MainWindow(QMainWindow):
         toolbar = self.addToolBar("项目操作")
         toolbar.setMovable(False)
         for text, slot in (
-            ("➕ 新建项目", self.new_project),
-            ("🔄 重新运行", self.rerun_project),
-            ("⟳ 刷新", self.refresh),
-            ("🌐 打开 Web 结果", self.open_web),
-            ("📁 打开项目文件夹", self.open_folder),
+            ("新建项目", self.new_project),
+            ("重新运行", self.rerun_project),
+            ("刷新", self.refresh),
+            ("打开 Web 结果", self.open_web),
+            ("打开项目文件夹", self.open_folder),
         ):
             action = QAction(text, self)
             action.triggered.connect(slot)
             toolbar.addAction(action)
 
-        diagnostics_action = QAction("🛠 导出诊断包", self)
+        diagnostics_action = QAction("导出诊断包", self)
         diagnostics_action.triggered.connect(self.export_diagnostics)
         toolbar.addAction(diagnostics_action)
 
-        delete_action = QAction("🗑 删除项目", self)
+        delete_action = QAction("删除项目", self)
         delete_action.triggered.connect(self.delete_project)
         toolbar.addAction(delete_action)
 
@@ -78,22 +78,22 @@ class MainWindow(QMainWindow):
         self.project_list.currentItemChanged.connect(self._project_selected)
         left = QWidget()
         left_layout = QVBoxLayout(left)
-        left_layout.setContentsMargins(12, 12, 12, 12)
+        left_layout.setContentsMargins(8, 8, 8, 8)
         left_header = QLabel("工程项目列表")
-        left_header.setStyleSheet("font-weight: bold; color: #475569; font-size: 13px; margin-bottom: 4px;")
+        left_header.setStyleSheet("font-weight: 600; color: #424242; font-size: 12px; margin-bottom: 2px;")
         left_layout.addWidget(left_header)
         left_layout.addWidget(self.project_list)
 
         detail = QWidget()
         detail_layout = QVBoxLayout(detail)
-        detail_layout.setContentsMargins(16, 12, 16, 12)
+        detail_layout.setContentsMargins(12, 8, 12, 8)
 
         self.title = QLabel("等待本地服务连接…")
         self.title.setObjectName("ProjectTitle")
         detail_layout.addWidget(self.title)
 
         form = QFormLayout()
-        form.setSpacing(8)
+        form.setSpacing(6)
         self.code_label = QLabel("—")
         self.fem_label = QLabel("—")
         self.h3d_label = QLabel("—")
@@ -109,13 +109,13 @@ class MainWindow(QMainWindow):
         detail_layout.addLayout(form)
 
         controls = QHBoxLayout()
-        controls.setSpacing(10)
+        controls.setSpacing(8)
         for text, action in (
-            ("▶ 启动 Run", "start"),
-            ("❚❚ 暂停", "pause"),
-            ("► 恢复", "resume"),
-            ("✖ 取消", "cancel"),
-            ("↺ 重试失败项", "retry-failed")
+            ("启动 Run", "start"),
+            ("暂停", "pause"),
+            ("恢复", "resume"),
+            ("取消", "cancel"),
+            ("重试失败项", "retry-failed")
         ):
             button = QPushButton(text)
             if action in ("start", "retry-failed"):
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         detail_layout.addLayout(controls)
 
         self.progress = QProgressBar()
-        self.progress.setFormat("总体计算与提取进度: %p%")
+        self.progress.setFormat("总体进度: %p%")
         detail_layout.addWidget(self.progress)
 
         self.tasks = QTableWidget(0, 4)
@@ -140,15 +140,15 @@ class MainWindow(QMainWindow):
         # Log Console Header & TextEdit
         console_box = QWidget()
         console_layout = QVBoxLayout(console_box)
-        console_layout.setContentsMargins(0, 4, 0, 0)
+        console_layout.setContentsMargins(0, 2, 0, 0)
         console_layout.setSpacing(4)
         
         console_header = QHBoxLayout()
-        log_title = QLabel("▶ 系统运行日志 (Console Log)")
-        log_title.setStyleSheet("font-weight: bold; color: #475569; font-size: 12px;")
+        log_title = QLabel("系统运行日志 (Console Log)")
+        log_title.setStyleSheet("font-weight: 600; color: #424242; font-size: 12px;")
         clear_log_btn = QPushButton("清空日志")
-        clear_log_btn.setFixedSize(70, 24)
-        clear_log_btn.setStyleSheet("font-size: 11px; padding: 2px 6px;")
+        clear_log_btn.setFixedSize(68, 22)
+        clear_log_btn.setStyleSheet("font-size: 11px; padding: 2px 4px;")
         clear_log_btn.clicked.connect(lambda: self.log.clear())
         
         console_header.addWidget(log_title)
@@ -159,7 +159,7 @@ class MainWindow(QMainWindow):
         self.log = QTextEdit()
         self.log.setObjectName("ConsoleLog")
         self.log.setReadOnly(True)
-        self.log.setMaximumHeight(140)
+        self.log.setMaximumHeight(130)
         console_layout.addWidget(self.log)
 
         detail_layout.addWidget(console_box)
@@ -184,8 +184,7 @@ class MainWindow(QMainWindow):
 
     def _process_status(self, process: str, status: str) -> None:
         label = self.server_status if process == "Server" else self.worker_status
-        indicator = "🟢" if status in ("ready", "active", "running") else "🟡"
-        label.setText(f"{process}: {indicator} {status}")
+        label.setText(f"{process}: {status}")
 
     def _log(self, text: str) -> None:
         self.log.append(text.rstrip())
@@ -201,8 +200,7 @@ class MainWindow(QMainWindow):
                 self._load_project(current_id)
             health = self.client.get("/health")
             worker_state = health.get('worker', 'unknown')
-            indicator = "🟢" if worker_state == 'ready' else "🟡"
-            self.worker_status.setText(f"Worker: {indicator} {worker_state}")
+            self.worker_status.setText(f"Worker: {worker_state}")
         except Exception as exc:
             self.statusBar().showMessage(f"刷新失败：{exc}", 4000)
 
@@ -213,8 +211,7 @@ class MainWindow(QMainWindow):
         self.project_list.clear()
         selected_row = 0
         for index, project in enumerate(self.projects):
-            status_symbol = "✔" if project['status'] == 'completed' else "⚙" if project['status'] == 'running' else "📁"
-            item = QListWidgetItem(f"{project['name']}\n{project.get('code') or 'PRJ-UNASSIGNED'}  ·  {status_symbol} {project['status']}")
+            item = QListWidgetItem(f"{project['name']}\n{project.get('code') or 'PRJ-UNASSIGNED'}  ·  {project['status']}")
             item.setData(Qt.ItemDataRole.UserRole, project["id"])
             self.project_list.addItem(item)
             if project["id"] == selected_id:
@@ -251,12 +248,11 @@ class MainWindow(QMainWindow):
             self.run_label.setText("—")
             self.progress.setValue(0)
             return
-        status_symbol = "✔" if run['status'] == 'completed' else "⚙" if run['status'] == 'running' else "⏳"
-        self.run_label.setText(f"{run['name']}  ·  {status_symbol} {run['status']}")
+        self.run_label.setText(f"{run['name']}  ·  {run['status']}")
         self.progress.setValue(run["progress"])
         self.tasks.setRowCount(len(run["tasks"]))
         for row, task in enumerate(run["tasks"]):
-            status_text = "✔ 已完成" if task["status"] == "completed" else "⚙ 运行中" if task["status"] == "running" else "✖ 失败" if task["status"] == "failed" else "⏳ 排队"
+            status_text = "已完成" if task["status"] == "completed" else "运行中" if task["status"] == "running" else "失败" if task["status"] == "failed" else "等待中"
             values = [task["task_type"], status_text, f"{task['progress_current']}/{task['progress_total']}", task["progress_message"]]
             for column, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
@@ -270,8 +266,7 @@ class MainWindow(QMainWindow):
                 self.tasks.setItem(row, column, item)
 
         active_hv = any(task["status"] == "running" and not task["task_type"].startswith("fem.") for task in run["tasks"])
-        hv_indicator = "🟡 忙碌" if active_hv else "🟢 空闲"
-        self.hyperview_status.setText(f"HyperView: {hv_indicator}")
+        self.hyperview_status.setText(f"HyperView: {'busy' if active_hv else 'idle'}")
 
     def new_project(self) -> None:
         if self.client is None:

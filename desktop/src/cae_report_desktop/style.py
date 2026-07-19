@@ -1,181 +1,190 @@
-"""Qt QSS Style Sheet for CAE Report Desktop application."""
+"""Qt QSS Style Sheet for CAE Report Desktop application (Windows 10/11 Fluent Style)."""
 
 CAE_DESKTOP_QSS = """
-/* Global Window Style */
+/* Global Window Style - Windows 11 Fluent Light Theme */
 QMainWindow {
-    background-color: #F8FAFC;
-    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-    color: #0F172A;
+    background-color: #F3F3F3;
+    font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+    color: #1A1A1A;
 }
 
 /* ToolBar Styling */
 QToolBar {
-    background-color: #0F172A;
-    border-bottom: 2px solid #0284C7;
-    padding: 6px 10px;
-    spacing: 8px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E5E5;
+    padding: 4px 8px;
+    spacing: 6px;
 }
 
 QToolBar QToolButton {
-    color: #F8FAFC;
-    background-color: #1E293B;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
+    color: #1F1F1F;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 QToolBar QToolButton:hover {
-    background-color: #0284C7;
-    border-color: #38BDF8;
-    color: white;
+    background-color: #F5F5F5;
+    border-color: #CCCCCC;
+    color: #000000;
 }
 
 QToolBar QToolButton:pressed {
-    background-color: #0369A1;
+    background-color: #E9E9E9;
 }
 
 /* Left Sidebar Project List */
 QListWidget {
     background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 6px;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 4px;
     outline: none;
 }
 
 QListWidget::item {
-    background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 6px;
-    color: #1E293B;
+    background-color: #FFFFFF;
+    border: 1px solid #F0F0F0;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    color: #1F1F1F;
+    font-size: 13px;
 }
 
 QListWidget::item:hover {
-    background-color: #F0F9FF;
-    border-color: #38BDF8;
+    background-color: #F5F5F5;
+    border-color: #D0D0D0;
 }
 
 QListWidget::item:selected {
-    background-color: #E0F2FE;
-    border: 1px solid #0284C7;
-    color: #0369A1;
-    font-weight: bold;
+    background-color: #E5F3FF;
+    border: 1px solid #0067C0;
+    color: #003E78;
+    font-weight: 600;
 }
 
-/* Header & Detail Panel */
+/* Header & Title Labels */
 QLabel#ProjectTitle {
-    font-size: 22px;
-    font-weight: bold;
-    color: #0F172A;
-    padding-bottom: 4px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A1A;
 }
 
-/* Action Control Buttons */
+/* Form Layout Labels */
+QFormLayout QLabel {
+    font-size: 12px;
+    color: #424242;
+}
+
+/* Standard Control Buttons - Win11 Design */
 QPushButton {
     background-color: #FFFFFF;
-    border: 1px solid #CBD5E1;
-    border-radius: 6px;
-    padding: 7px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #1E293B;
+    border: 1px solid #D1D1D1;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #1F1F1F;
 }
 
 QPushButton:hover {
-    background-color: #F1F5F9;
-    border-color: #94A3B8;
+    background-color: #F8F8F8;
+    border-color: #C7C7C7;
+}
+
+QPushButton:pressed {
+    background-color: #F0F0F0;
 }
 
 QPushButton[primary="true"] {
-    background-color: #0284C7;
-    border-color: #0284C7;
+    background-color: #0067C0;
+    border-color: #0067C0;
     color: #FFFFFF;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 QPushButton[primary="true"]:hover {
-    background-color: #0369A1;
-    border-color: #0369A1;
+    background-color: #005A9E;
+    border-color: #005A9E;
 }
 
 QPushButton[danger="true"] {
-    background-color: #FEF2F2;
-    border-color: #FCA5A5;
-    color: #DC2626;
+    background-color: #FFFFFF;
+    border-color: #D13438;
+    color: #D13438;
 }
 
 QPushButton[danger="true"]:hover {
-    background-color: #EF4444;
-    color: #FFFFFF;
+    background-color: #FDF2F2;
+    border-color: #A80000;
+    color: #A80000;
 }
 
 /* Overall Progress Bar */
 QProgressBar {
-    border: 1px solid #CBD5E1;
-    border-radius: 6px;
+    border: 1px solid #D1D1D1;
+    border-radius: 4px;
     text-align: center;
-    background-color: #F1F5F9;
-    color: #0F172A;
-    font-weight: bold;
+    background-color: #FFFFFF;
+    color: #1F1F1F;
     font-size: 12px;
-    height: 22px;
+    height: 20px;
 }
 
 QProgressBar::chunk {
-    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284C7, stop:1 #38BDF8);
-    border-radius: 5px;
+    background-color: #0067C0;
+    border-radius: 3px;
 }
 
 /* Tasks Table */
 QTableWidget {
     background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    gridline-color: #F1F5F9;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    gridline-color: #F0F0F0;
     outline: none;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 QTableWidget::item {
-    padding: 6px 8px;
+    padding: 5px 8px;
 }
 
 QHeaderView::section {
-    background-color: #F1F5F9;
-    color: #475569;
-    padding: 8px;
-    font-weight: bold;
+    background-color: #F9F9F9;
+    color: #424242;
+    padding: 6px 8px;
+    font-weight: 600;
     font-size: 12px;
     border: none;
-    border-bottom: 2px solid #E2E8F0;
+    border-bottom: 1px solid #E0E0E0;
 }
 
 /* Console Log Box */
 QTextEdit#ConsoleLog {
-    background-color: #0F172A;
-    color: #38BDF8;
-    border: 1px solid #1E293B;
-    border-radius: 6px;
-    font-family: Consolas, "Courier New", monospace;
+    background-color: #FAFAFA;
+    color: #262626;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    font-family: Consolas, "Segoe UI Mono", monospace;
     font-size: 12px;
-    padding: 8px;
+    padding: 6px;
 }
 
 /* Status Bar */
 QStatusBar {
-    background-color: #0F172A;
-    color: #94A3B8;
-    border-top: 1px solid #1E293B;
+    background-color: #F8F8F8;
+    color: #616161;
+    border-top: 1px solid #E5E5E5;
 }
 
 QStatusBar QLabel {
-    color: #CBD5E1;
-    padding: 0 10px;
-    font-family: Consolas, monospace;
+    color: #424242;
+    padding: 0 8px;
     font-size: 12px;
 }
 """
+

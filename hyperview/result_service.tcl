@@ -53,6 +53,74 @@ proc ::CAEReport::sourceIndex {id} {
     ::CAEReport::success $id "{\"subcases\":\[$subcases\],\"simulations\":\[$simulations\],\"result_types\":\[$resultTypes\]}"
 }
 
+# Resolve the component that owns an entity. HyperView 2019 does not expose
+# GetComponentList/GetCompCtrlHandle on poIModel; component enumeration and
+# membership queries must go through selection sets.
+#
+# Returns {component_id component_name component_pool}.
+proc ::CAEReport::resolveEntityComponent {modelHandle entityType entityPool entityId} {
+    set compId ""
+    set compName ""
+    set compPool ""
+    set componentSetId ""
+    set entitySetId ""
+    if {[catch {
+        set componentSetId [$modelHandle AddSelectionSet component]
+        $modelHandle GetSelectionSetHandle componentSet $componentSetId
+        componentSet Add all
+
+        set entitySetId [$modelHandle AddSelectionSet $entityType]
+        $modelHandle GetSelectionSetHandle entitySet $entitySetId
+
+        set componentPools [componentSet GetPoolList]
+        if {[llength $componentPools] == 0} {
+            set componentPools [list ""]
+        }
+        foreach pool $componentPools {
+            if {$pool eq ""} {
+                set componentIds [componentSet GetList]
+            } else {
+                set componentIds [componentSet GetList $pool]
+            }
+            foreach candidateId $componentIds {
+                if {![string is integer -strict $candidateId]} {continue}
+                entitySet Clear
+                entitySet Add "component $candidateId"
+                if {$entityPool eq ""} {
+                    set ownedIds [entitySet GetList]
+                } else {
+                    set ownedIds [entitySet GetList $entityPool]
+                }
+                if {[lsearch -integer -exact $ownedIds $entityId] < 0} {
+                    continue
+                }
+                set compId $candidateId
+                set compPool $pool
+                if {![catch {$modelHandle GetComponentHandle componentHandle $candidateId}]} {
+                    catch {set compName [componentHandle GetLabel]}
+                    catch {componentHandle ReleaseHandle}
+                }
+                break
+            }
+            if {$compId ne ""} {break}
+        }
+    }]} {
+        # Component metadata is useful but must not make the result query fail.
+        set compId ""
+        set compName ""
+        set compPool ""
+    }
+    catch {componentSet ReleaseHandle}
+    catch {entitySet ReleaseHandle}
+    if {$componentSetId ne ""} {
+        catch {$modelHandle RemoveSelectionSet $componentSetId}
+    }
+    if {$entitySetId ne ""} {
+        catch {$modelHandle RemoveSelectionSet $entitySetId}
+    }
+    return [list $compId $compName $compPool]
+}
+
 proc ::CAEReport::resultQueryMax {id line} {
     set subcaseId [::CAEReport::jsonString $line subcase_id]
     set simulationIndex [::CAEReport::jsonString $line simulation_index]
@@ -97,7 +165,6 @@ proc ::CAEReport::resultQueryMax {id line} {
         caeModel GetSelectionSetHandle caeSelection $selectionId
         caeSelection Add "contour top $count"
         set values [lsort -index 1 -real -decreasing [caeContour GetValueList $selectionId]]
-        caeModel RemoveSelectionSet $selectionId
 
         set items ""
         foreach valuePair $values {
@@ -106,9 +173,32 @@ proc ::CAEReport::resultQueryMax {id line} {
             if {![string is integer -strict $entityId] || ![string is double -strict $value]} {
                 continue
             }
+            set entityPool ""
+            foreach pool [caeSelection GetPoolList] {
+                if {[lsearch -integer -exact [caeSelection GetList $pool] $entityId] >= 0} {
+                    set entityPool $pool
+                    break
+                }
+            }
+            set compIdStr ""
+            set compNameStr ""
+            set compPoolStr ""
+            set resolved [
+                ::CAEReport::resolveEntityComponent caeModel $binding $entityPool $entityId
+            ]
+            set compIdStr [lindex $resolved 0]
+            set compNameStr [lindex $resolved 1]
+            set compPoolStr [lindex $resolved 2]
+            if {$compIdStr eq "" || ![string is integer -strict $compIdStr]} {
+                set compIdJson 0
+            } else {
+                set compIdJson $compIdStr
+            }
             if {$items ne ""} {append items ","}
-            append items "{\"entity_type\":\"[::CAEReport::jsonEscape $binding]\",\"entity_id\":$entityId,\"value\":$value}"
+            append items "{\"entity_type\":\"[::CAEReport::jsonEscape $binding]\",\"entity_pool\":\"[::CAEReport::jsonEscape $entityPool]\",\"entity_id\":$entityId,\"value\":$value,\"component_id\":$compIdJson,\"component_pool\":\"[::CAEReport::jsonEscape $compPoolStr]\",\"component_name\":\"[::CAEReport::jsonEscape $compNameStr]\"}"
         }
+        catch {caeSelection ReleaseHandle}
+        caeModel RemoveSelectionSet $selectionId
         hwi CloseStack
     } message]} {
         catch {hwi CloseStack}

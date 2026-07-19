@@ -24,7 +24,12 @@ def test_full_fake_run_capture_review_and_pptx(client: TestClient, project_paylo
     model = client.get(f"/api/v1/runs/{run_id}/model-summary").json()
     assert model["node_count"] == 4
     hotspots = client.get(f"/api/v1/runs/{run_id}/hotspots").json()
-    assert len(hotspots) == 6
+    # Fake HyperView advertises 2 subcases (FULL_LOAD, BRAKE_LOAD) and the
+    # worker keeps top_n hotspots per subcase per kind, so with top_n=3 we
+    # expect 2 subcases * 3 stress + 2 subcases * 3 displacement = 12.
+    assert len(hotspots) == 12
+    assert len({item["subcase"] for item in hotspots}) == 2
+
     hotspot = client.get(f"/api/v1/hotspots/{hotspots[0]['id']}").json()
     assert len(hotspot["captures"]) >= 7
     capture = hotspot["captures"][0]

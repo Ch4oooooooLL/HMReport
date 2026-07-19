@@ -8,11 +8,16 @@ proc ::CAEReport::viewApply {id line} {
     set legendPrecision [::CAEReport::jsonString $line legend_precision]
     set legendVisible [string tolower [::CAEReport::jsonString $line legend_visible]]
     set targetType [string tolower [::CAEReport::jsonString $line target_entity_type]]
+    set targetPool [::CAEReport::jsonString $line target_entity_pool]
     set targetId [::CAEReport::jsonString $line target_entity_id]
+    set targetComponentId [::CAEReport::jsonString $line target_component_id]
+    set targetComponentPool [::CAEReport::jsonString $line target_component_pool]
     set preset [string tolower [::CAEReport::jsonString $line camera_preset]]
     set cameraMatrix [::CAEReport::jsonString $line camera_matrix]
     set missing {}
     set warnings {}
+    set appliedTarget ""
+    set appliedViewMode ""
 
     if {[catch {
         hwi OpenStack
@@ -126,30 +131,41 @@ proc ::CAEReport::viewApply {id line} {
     }
 
     set targetApplied 0
-    if {$targetType ne "" && [string is integer -strict $targetId]} {
-        set viewMode ""
-        switch -- $preset {
-            "local_isometric" {set viewMode "entityzoom"}
-            "component_isolate" {set viewMode "isolatecomponent"}
-            "component_context" {set viewMode "componenttransparency"}
+    set componentPreset [expr {
+        $preset in {"component_isolate" "component_context" "local_isometric"}
+    }]
+
+    if {$componentPreset} {
+        if {![string is integer -strict $targetComponentId] &&
+            $targetType ne "" && [string is integer -strict $targetId]} {
+            set resolved [
+                ::CAEReport::resolveEntityComponent caeModel $targetType $targetPool $targetId
+            ]
+            set targetComponentId [lindex $resolved 0]
+            set targetComponentPool [lindex $resolved 2]
         }
-        if {$viewMode ne ""} {
-            if {[string index $targetType end] eq "s"} {
-                set targetType [string range $targetType 0 end-1]
-            }
-            if {[catch {
-                set bestViewId [caeClient AddBestView]
-                caeClient GetBestViewHandle caeBestView $bestViewId
-                caeBestView SetEntity $targetType $targetId
-                caeBestView SetViewMode $viewMode
-                caeBestView ActivateView
-                caeBestView ReleaseHandle
-                set targetApplied 1
-            } message]} {
-                lappend missing "target"
-                lappend warnings $message
-            }
+        if {![string is integer -strict $targetComponentId]} {
+            lappend missing "target.component_id"
+            lappend warnings "component focus requires a resolvable component id"
+        } elseif {[catch {
+            set transparent [expr {$preset eq "component_context"}]
+            ::CAEReport::setComponentFocus \
+                caeModel caeClient $targetComponentId $transparent
+            caeView SetOrientation iso
+            caeView Fit
+            set targetApplied 1
+            set appliedTarget "component [list $targetComponentPool $targetComponentId]"
+            set appliedViewMode $preset
+        } message]} {
+            lappend missing "target"
+            lappend warnings $message
         }
+    } elseif {[catch {
+        # Clear a previous focus before standard/global/directional views.
+        ::CAEReport::setComponentFocus caeModel caeClient "" false
+    } message]} {
+        lappend missing "visibility"
+        lappend warnings $message
     }
 
     if {$cameraMatrix ne ""} {
@@ -187,7 +203,7 @@ proc ::CAEReport::viewApply {id line} {
     }
 
     if {[catch {
-        caeClient Draw
+        caeClient Draw true
         update
     } message]} {
         lappend missing "display.draw"
@@ -199,6 +215,12 @@ proc ::CAEReport::viewApply {id line} {
     set missing [lsort -unique $missing]
     set restore [expr {[llength $missing] == 0 ? "exact" : "partial"}]
     set result "{\"restore\":\"$restore\",\"missing\":[::CAEReport::jsonStringArray $missing]"
+    if {$appliedTarget ne ""} {
+        append result ",\"applied_target\":\"[::CAEReport::jsonEscape $appliedTarget]\""
+    }
+    if {$appliedViewMode ne ""} {
+        append result ",\"applied_view_mode\":\"[::CAEReport::jsonEscape $appliedViewMode]\""
+    }
     if {[llength $warnings] > 0} {
         append result ",\"warning\":\"[::CAEReport::jsonEscape [join $warnings { | }]]\""
     }

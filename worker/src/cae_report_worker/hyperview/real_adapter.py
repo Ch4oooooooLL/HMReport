@@ -47,10 +47,24 @@ def _restore_payload(view_state: dict[str, Any]) -> dict[str, str]:
         "legend_precision": str(contour.get("precision") if contour.get("precision") is not None else ""),
         "legend_visible": boolean(render.get("legend_visible", True)),
         "target_entity_type": str(target.get("entity_type") or ""),
+        "target_entity_pool": str(target.get("entity_pool") or ""),
         "target_entity_id": str(target.get("entity_id") if target.get("entity_id") is not None else ""),
+        "target_component_id": str(
+            target.get("component_id") if target.get("component_id") is not None else ""
+        ),
+        "target_component_pool": str(target.get("component_pool") or ""),
         "camera_preset": str(camera.get("preset") or ""),
         "camera_matrix": matrix_text,
     }
+
+
+def _require_exact_view(result: dict[str, Any]) -> None:
+    if result.get("restore") == "exact":
+        return
+    missing = ", ".join(str(value) for value in result.get("missing", []))
+    warning = str(result.get("warning") or "")
+    detail = " | ".join(value for value in (missing, warning) if value)
+    raise RuntimeError(f"VIEW_APPLY_PARTIAL: {detail or 'HyperView did not apply the requested view'}")
 
 
 class RealHyperViewAdapter:
@@ -100,6 +114,13 @@ class RealHyperViewAdapter:
         return self._index
 
     def hotspots(self, kind: str, top_n: int = 3) -> list[dict[str, Any]]:
+        """Return hotspot candidates for ``kind`` across every subcase.
+
+        The deduplicate step is performed per-subcase by the executor, so
+        here we collect ``top_n`` candidates from EACH subcase separately.
+        This lets the user inspect multiple subcases' hotspots in the UI
+        instead of being limited to subcase[0].
+        """
         index = self.index()
         subcases = list(index.get("subcases", []))
         if not subcases:
@@ -136,44 +157,65 @@ class RealHyperViewAdapter:
                 raise RuntimeError(f"H3D_RESULT_MISSING: no components for {result_type['name']}")
             component = components[0]
 
-        subcase = subcases[0]
-        subcase_id = int(subcase["id"])
-        simulations = [
-            item for item in index.get("simulations", []) if int(item.get("subcase_id", -1)) == subcase_id
-        ]
-        simulation = simulations[0] if simulations else {"index": 0, "name": ""}
-        query = self._require_session().request(
-            "result.query_max",
-            {
-                "subcase_id": str(subcase_id),
-                "simulation_index": str(simulation.get("index", 0)),
-                "data_type": str(result_type["name"]),
-                "component": component,
-                "count": str(max(top_n, 1)),
-            },
-            timeout=120,
-        )
         hotspots: list[dict[str, Any]] = []
-        for rank, item in enumerate(query.get("items", []), start=1):
-            hotspots.append(
+        session = self._require_session()
+        for subcase in subcases:
+            subcase_id = int(subcase["id"])
+            simulations = [
+                item for item in index.get("simulations", []) if int(item.get("subcase_id", -1)) == subcase_id
+            ]
+            simulation = simulations[0] if simulations else {"index": 0, "name": ""}
+            query = session.request(
+                "result.query_max",
                 {
-                    "subcase": str(subcase.get("name", subcase_id)),
-                    "simulation": str(simulation.get("name", "")),
-                    "result_type": str(result_type["name"]),
-                    "result_component": component,
-                    "rank": rank,
-                    "entity_type": str(item["entity_type"]),
-                    "entity_id": int(item["entity_id"]),
-                    "component_id": None,
-                    "component_name": "",
-                    "value": float(item["value"]),
-                    "unit": unit,
-                    "coordinate": None,
-                    "cluster_id": f"{kind}:{subcase_id}:{item['entity_id']}",
-                    "classification": "unknown",
-                    "review_status": "unknown",
-                }
+                    "subcase_id": str(subcase_id),
+                    "simulation_index": str(simulation.get("index", 0)),
+                    "data_type": str(result_type["name"]),
+                    "component": component,
+                    "count": str(max(top_n, 1)),
+                },
+                timeout=120,
             )
+            items = list(query.get("items", []))
+            if not items:
+                continue
+            for rank, item in enumerate(items, start=1):
+                entity_id_raw = item.get("entity_id")
+                try:
+                    entity_id_int = int(entity_id_raw) if entity_id_raw is not None else 0
+                except (TypeError, ValueError):
+                    entity_id_int = 0
+                component_id_raw = item.get("component_id") or 0
+                try:
+                    component_id_int = int(component_id_raw) if int(component_id_raw) != 0 else None
+                except (TypeError, ValueError):
+                    component_id_int = None
+                component_name_value = str(item.get("component_name") or "")
+                # Coordinate is reported as None here because HyperView's
+                # result.query_max protocol does not yet return element
+                # coordinates; the worker derives the visual hotspot location
+                # from the entity id instead.
+                hotspots.append(
+                    {
+                        "subcase": str(subcase.get("name", subcase_id)),
+                        "simulation": str(simulation.get("name", "")),
+                        "result_type": str(result_type["name"]),
+                        "result_component": component,
+                        "rank": rank,
+                        "entity_type": str(item.get("entity_type", "element")),
+                        "entity_pool": str(item.get("entity_pool") or ""),
+                        "entity_id": entity_id_int,
+                        "component_id": component_id_int,
+                        "component_pool": str(item.get("component_pool") or ""),
+                        "component_name": component_name_value,
+                        "value": float(item.get("value", 0)),
+                        "unit": unit,
+                        "coordinate": None,
+                        "cluster_id": f"{kind}:{subcase_id}:{entity_id_int}",
+                        "classification": "unknown",
+                        "review_status": "unknown",
+                    }
+                )
         if not hotspots:
             raise RuntimeError(f"H3D_RESULT_EMPTY: no {kind} values")
         return hotspots
@@ -202,10 +244,17 @@ class RealHyperViewAdapter:
         thumbnail_path = thumbnail_dir / f"{file_id}.png"
 
         if view_state is None:
+            component_id = hotspot.get("component_id") if hotspot else None
             target = {
-                "entity_type": hotspot.get("entity_type", "") if hotspot else "",
+                # BestView component modes intentionally receive the hotspot
+                # entity. HyperView derives its owning component and surface
+                # orientation from this entity; the pool makes the locator
+                # unambiguous in models with overlapping IDs.
+                "entity_type": (hotspot.get("entity_type", "") if hotspot else ""),
+                "entity_pool": (hotspot.get("entity_pool", "") if hotspot else ""),
                 "entity_id": hotspot.get("entity_id") if hotspot else None,
-                "component_id": hotspot.get("component_id") if hotspot else None,
+                "component_id": component_id,
+                "component_pool": (hotspot.get("component_pool", "") if hotspot else ""),
                 "coordinate": hotspot.get("coordinate") if hotspot else None,
             }
             view_state = {
@@ -229,7 +278,7 @@ class RealHyperViewAdapter:
             }
         else:
             view_state = deepcopy(view_state)
-        session.request("view.apply", _restore_payload(view_state))
+        _require_exact_view(session.request("view.apply", _restore_payload(view_state)))
         session.request(
             "capture.execute",
             {"path": str(image_path.resolve()), "width": str(width), "height": str(height)},

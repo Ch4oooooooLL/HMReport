@@ -77,12 +77,13 @@ class TaskExecutor:
             )
             views = ["global", "local_isometric", "front", "right", "top", "component_isolate", "component_context"]
             for hotspot_index, hotspot in enumerate(hotspots):
+                capture_name = f"{kind.title()} hotspot [{hotspot.get('subcase', '')}] #{hotspot['rank']}"
                 hotspot["captures"] = [
                     (
                         create_capture(
                             project_path,
                             run_id,
-                            f"{kind.title()} hotspot #{hotspot['rank']}",
+                            capture_name,
                             view,
                             hotspot=hotspot,
                             source_fingerprint=snapshot["h3d"]["fingerprint"],
@@ -91,7 +92,7 @@ class TaskExecutor:
                         else hv.capture(
                             project_path,
                             run_id,
-                            f"{kind.title()} hotspot #{hotspot['rank']}",
+                            capture_name,
                             view,
                             hotspot=hotspot,
                         )

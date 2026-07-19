@@ -29,16 +29,24 @@ const report = ref<ReportDocument | null>(null)
 const activeSlide = ref(0)
 const reportList = ref<HTMLElement | null>(null)
 const filter = ref('')
-const hotspotKind = ref('all')
+const hotspotKind = ref<'stress' | 'displacement'>('stress')
 const classification = ref('all')
+const hotspotSubcase = ref<string>('all')
 const pageLoading = ref(false)
 
 const runId = computed(() => store.run?.id)
-const filteredHotspots = computed(() => hotspots.value.filter((item) =>
-  (hotspotKind.value === 'all' || item.result_kind === hotspotKind.value) &&
-  (classification.value === 'all' || item.classification === classification.value) &&
-  (!filter.value || `${item.component_name} ${item.entity_id} ${item.subcase}`.toLowerCase().includes(filter.value.toLowerCase())),
-))
+const hotspotSubcases = computed(() => {
+  const names = new Set<string>()
+  for (const item of hotspots.value) {
+    if (item.subcase) names.add(item.subcase)
+  }
+  return Array.from(names).sort()
+})
+const filteredHotspots = computed(() => hotspots.value
+  .filter((item) => item.result_kind === hotspotKind.value)
+  .filter((item) => hotspotSubcase.value === 'all' || item.subcase === hotspotSubcase.value)
+  .filter((item) => classification.value === 'all' || item.classification === classification.value)
+  .filter((item) => !filter.value || `${item.component_name} ${item.entity_id} ${item.subcase}`.toLowerCase().includes(filter.value.toLowerCase())))
 
 const menuGroups = [
   {
@@ -190,9 +198,10 @@ async function exportPptx() {
 }
 
 function csvDownload() {
-  const rows = [['rank', 'kind', 'subcase', 'component', 'entity', 'value', 'unit'], ...filteredHotspots.value.map((h) => [h.rank, h.result_kind, h.subcase, h.component_name, h.entity_id, h.value, h.unit])]
+  const kindLabel = hotspotKind.value === 'stress' ? '应力' : '位移'
+  const rows = [['rank', 'kind', 'subcase', 'component', 'entity', 'value', 'unit'], ...filteredHotspots.value.map((h) => [h.rank, kindLabel, h.subcase, h.component_name, h.entity_id, h.value, h.unit])]
   const blob = new Blob(['\ufeff' + rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv;charset=utf-8' })
-  const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'hotspots.csv'; link.click(); URL.revokeObjectURL(link.href)
+  const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `hotspots-${hotspotKind.value}.csv`; link.click(); URL.revokeObjectURL(link.href)
 }
 
 function source(kind: string) { return store.project?.sources?.find((item) => item.source_type === kind) }
@@ -439,8 +448,43 @@ function getTaskStatusText(taskType: string) {
       </section>
 
       <section v-else-if="activePage === 'hotspots'" class="content">
-        <section class="panel"><div class="panel-heading hotspot-toolbar"><div><h3>热点审查</h3><span>{{ filteredHotspots.length }} / {{ hotspots.length }}</span></div><div><el-input v-model="filter" placeholder="搜索 component / entity / subcase" clearable style="width:280px" /><el-select v-model="hotspotKind" style="width:130px"><el-option label="全部结果" value="all" /><el-option label="应力" value="stress" /><el-option label="位移" value="displacement" /></el-select><el-select v-model="classification" style="width:140px"><el-option v-for="value in ['all','valid','singularity','contact_singularity','mesh_issue','boundary_issue','ignore','unknown']" :key="value" :label="value" :value="value" /></el-select><el-button type="primary" plain @click="csvDownload">导出 CSV</el-button></div></div>
-          <el-table :data="filteredHotspots" stripe @row-dblclick="openHotspot"><el-table-column prop="rank" label="#" sortable width="65" /><el-table-column prop="result_kind" label="结果" width="100" /><el-table-column prop="subcase" label="子工况" /><el-table-column prop="component_name" label="Component" sortable /><el-table-column label="Entity"><template #default="scope">{{ scope.row.entity_type }} {{ scope.row.entity_id }}</template></el-table-column><el-table-column label="数值" sortable><template #default="scope"><strong>{{ scope.row.value }}</strong> {{ scope.row.unit }}</template></el-table-column><el-table-column prop="classification" label="分类" /><el-table-column label="操作" width="100"><template #default="scope"><el-button link type="primary" @click="openHotspot(scope.row)">审查</el-button></template></el-table-column></el-table>
+        <section class="panel">
+          <div class="panel-heading hotspot-toolbar">
+            <div><h3>热点审查</h3><span>{{ filteredHotspots.length }} / {{ hotspots.length }} · 应力 {{ hotspots.filter(h => h.result_kind === 'stress').length }} · 位移 {{ hotspots.filter(h => h.result_kind === 'displacement').length }} · 共 {{ hotspotSubcases.length }} 个子工况</span></div>
+            <div>
+              <el-input v-model="filter" placeholder="搜索 component / entity / subcase" clearable style="width:260px" />
+              <el-select v-model="hotspotSubcase" style="width:200px" placeholder="选择子工况">
+                <el-option label="全部子工况" value="all" />
+                <el-option v-for="name in hotspotSubcases" :key="name" :label="name" :value="name" />
+              </el-select>
+              <el-select v-model="classification" style="width:140px"><el-option v-for="value in ['all','valid','singularity','contact_singularity','mesh_issue','boundary_issue','ignore','unknown']" :key="value" :label="value" :value="value" /></el-select>
+              <el-button type="primary" plain @click="csvDownload">导出 CSV</el-button>
+            </div>
+          </div>
+          <div class="hotspot-kind-tabs">
+            <button
+              v-for="kind in ([
+                { value: 'stress', label: '应力热点', icon: '∇σ' },
+                { value: 'displacement', label: '位移热点', icon: '∇u' }
+              ] as const)"
+              :key="kind.value"
+              :class="['hotspot-kind-tab', { active: hotspotKind === kind.value }]"
+              @click="hotspotKind = kind.value; hotspotSubcase = 'all'"
+            >
+              <span class="icon">{{ kind.icon }}</span>
+              <span class="label">{{ kind.label }}</span>
+              <span class="count">{{ hotspots.filter(h => h.result_kind === kind.value && (hotspotSubcase === 'all' || h.subcase === hotspotSubcase)).length }}</span>
+            </button>
+          </div>
+          <el-table :data="filteredHotspots" stripe @row-dblclick="openHotspot">
+            <el-table-column prop="rank" label="#" sortable width="65" />
+            <el-table-column prop="subcase" label="子工况" sortable />
+            <el-table-column prop="component_name" label="Component" sortable />
+            <el-table-column label="Entity"><template #default="scope">{{ scope.row.entity_type }} {{ scope.row.entity_id }}</template></el-table-column>
+            <el-table-column label="数值" sortable><template #default="scope"><strong>{{ scope.row.value }}</strong> {{ scope.row.unit }}</template></el-table-column>
+            <el-table-column prop="classification" label="分类" />
+            <el-table-column label="操作" width="100"><template #default="scope"><el-button link type="primary" @click="openHotspot(scope.row)">审查</el-button></template></el-table-column>
+          </el-table>
         </section>
       </section>
 
@@ -463,7 +507,7 @@ function getTaskStatusText(taskType: string) {
     </main>
 
     <el-dialog v-model="hotspotDialog" width="88%" top="4vh" destroy-on-close>
-      <template #header><div class="dialog-title"><div><small>{{ selectedHotspot?.subcase }} · {{ selectedHotspot?.result_kind }}</small><h3>{{ selectedHotspot?.component_name }} / {{ selectedHotspot?.entity_type }} {{ selectedHotspot?.entity_id }}</h3></div><strong>{{ selectedHotspot?.value }} {{ selectedHotspot?.unit }}</strong></div></template>
+      <template #header><div class="dialog-title"><div><small>{{ selectedHotspot?.subcase }} · {{ selectedHotspot?.result_kind === 'stress' ? '应力热点' : '位移热点' }} · Rank #{{ selectedHotspot?.rank }}</small><h3>{{ selectedHotspot?.component_name }} / {{ selectedHotspot?.entity_type }} {{ selectedHotspot?.entity_id }}</h3></div><strong>{{ selectedHotspot?.value }} {{ selectedHotspot?.unit }}</strong></div></template>
       <div v-if="selectedHotspot" class="hotspot-detail"><el-descriptions :column="4" border><el-descriptions-item label="排名">#{{ selectedHotspot.rank }}</el-descriptions-item><el-descriptions-item label="坐标">{{ selectedHotspot.coordinate?.join(', ') }}</el-descriptions-item><el-descriptions-item label="分类"><el-select v-model="selectedHotspot.classification" size="small"><el-option v-for="value in ['valid','singularity','contact_singularity','mesh_issue','boundary_issue','ignore','unknown']" :key="value" :label="value" :value="value" /></el-select></el-descriptions-item><el-descriptions-item label="审核">{{ selectedHotspot.review_status }}</el-descriptions-item></el-descriptions><capture-review :captures="selectedHotspot.captures ?? []" @changed="reloadHotspot" /></div>
     </el-dialog>
   </div>
@@ -557,8 +601,17 @@ pre { max-height: 310px; overflow: auto; padding: 14px; background: #f8fafc; col
 .result-types strong { color: #0f172a; }
 .result-types p { color: #64748b; }
 .result-types span { color: #0284c7; font-size: 12px; font-family: var(--font-mono); }
-.hotspot-toolbar > div { display: flex; align-items: center; gap: 8px; }
+.hotspot-toolbar > div { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .hotspot-toolbar > div:first-child { display: block; }
+
+.hotspot-kind-tabs { display: flex; gap: 10px; margin-bottom: 14px; }
+.hotspot-kind-tab { display: flex; align-items: center; gap: 9px; padding: 10px 18px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; color: #475569; font-size: 13px; }
+.hotspot-kind-tab:hover { border-color: #0284c7; color: #0284c7; }
+.hotspot-kind-tab.active { background: #0284c7; border-color: #0284c7; color: white; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+.hotspot-kind-tab .icon { font-family: var(--font-mono); font-weight: 700; font-size: 14px; opacity: 0.85; }
+.hotspot-kind-tab.active .icon { opacity: 1; }
+.hotspot-kind-tab .count { background: #ffffff55; padding: 2px 9px; border-radius: 999px; font-size: 11px; min-width: 22px; text-align: center; }
+.hotspot-kind-tab.active .count { background: #ffffff33; }
 
 .dialog-title { display: flex; justify-content: space-between; padding-right: 22px; }
 .dialog-title small { color: #0284c7; }

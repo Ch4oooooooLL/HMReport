@@ -38,7 +38,7 @@
 | result index | 通过 | 6 subcase、37 simulation、6 result type |
 | contour / result query | 部分通过 | contour 和 top-N 数值通过；averaging 尚未实机验证 |
 | transparency / deformation | 待实现/待验 | 本轮未改变这两类显示状态 |
-| component isolate / standard views / local fit | 部分通过 | 标准方向通过；显示模式、热点隔离和局部聚焦尚未生效 |
+| component isolate / context / local fit | 通过 | 组件 pool/ID 解析、Mask 隔离、透明上下文、局部 fit 和跨视图状态复位均已实机验证 |
 | 1920×1080 PNG | 通过 | 53 张真实图片尺寸通过，方向视图校验和不同 |
 | camera read/restore | 部分通过 | preset 可恢复；matrix 和 legend precision 返回 partial |
 | lock screen / minimize / Remote Desktop | 待现场 | 需目标工作站环境 |
@@ -58,6 +58,16 @@
 
 第二条命令会验证 `source.open`、`source.index`、`result.query_max`、标准方向 PNG
 和 `view.read`。H3D 只引用，不会复制、修改或删除。
+
+组件截图专项验证：
+
+```powershell
+& .\.venv\Scripts\python.exe .\tools\verify_component_capture_real.py
+```
+
+该命令使用真实 HyperView 2019 生成 global、local、front/right/top、
+component isolate 和 component context 图片，校验 1920×1080 PNG，并要求
+global/isolate/context 以及标准方向的关键图片哈希互不相同。
 
 ## 已修复的 POC 问题
 

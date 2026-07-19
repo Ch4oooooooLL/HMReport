@@ -22,4 +22,5 @@ workspace/
 examples/optistruct_feature_model/*.fem
 examples/optistruct_feature_model/*.inc
 examples/optistruct_feature_model/*.manifest.json
+examples/vehicle_frame/
 /*.spec

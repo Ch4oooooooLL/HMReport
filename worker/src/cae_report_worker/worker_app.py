@@ -23,11 +23,12 @@ class WorkerApp:
         self.logger = configure_json_logger("cae_report.worker", "worker", log_path)
 
     def register(self) -> None:
+        hyperview_capability = "fake-hyperview" if self.executor.fake_hyperview else "real-hyperview"
         self.client.register(
             self.worker_id,
             os.getpid(),
             socket.gethostname(),
-            ["fem", "dag", "image-validation", "fake-hyperview"],
+            ["fem", "dag", "image-validation", hyperview_capability],
         )
         self.logger.info("Worker registered", extra={"event": "worker.registered", "details": {"worker_id": self.worker_id}})
 
@@ -44,6 +45,8 @@ class WorkerApp:
             except Exception as exc:
                 code = str(exc).split(":", 1)[0] if ":" in str(exc) else "ACTION_EXECUTION_FAILED"
                 self.client.complete_action(self.worker_id, action["id"], "failed", {}, code, str(exc))
+            finally:
+                self.executor.release_action_session(str(action["run_id"]))
             return True
         task_id = task["id"]
         try:
@@ -51,13 +54,28 @@ class WorkerApp:
                 task,
                 lambda current, total, message: self.client.progress(self.worker_id, task_id, current, total, message),
             )
-            self.client.complete(self.worker_id, task_id, "completed", result)
+            completed = self.client.complete(self.worker_id, task_id, "completed", result)
+            self._release_terminal_run(task, completed)
             self.logger.info("Task completed", extra={"event": "task.completed", "task_id": task_id, "run_id": task["run_id"]})
         except Exception as exc:
             code = str(exc).split(":", 1)[0] if ":" in str(exc) else "TASK_EXECUTION_FAILED"
-            self.client.complete(self.worker_id, task_id, "failed", {}, code, str(exc))
+            completed = self.client.complete(self.worker_id, task_id, "failed", {}, code, str(exc))
+            self._release_terminal_run(task, completed)
             self.logger.exception("Task failed", extra={"event": "task.failed", "task_id": task_id, "run_id": task["run_id"], "details": {"error_code": code}})
         return True
+
+    def _release_terminal_run(
+        self,
+        task: dict[str, object],
+        completion: dict[str, object],
+    ) -> None:
+        if completion.get("run_status") in {
+            "completed",
+            "completed_with_errors",
+            "failed",
+            "cancelled",
+        }:
+            self.executor.release_run(str(task["run_id"]))
 
     def run_forever(self) -> None:
         self.register()
@@ -68,4 +86,7 @@ class WorkerApp:
 
     def close(self) -> None:
         self.running = False
-        self.client.close()
+        try:
+            self.executor.close()
+        finally:
+            self.client.close()

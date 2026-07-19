@@ -17,6 +17,7 @@ ALLOWED_COMMANDS = {
     "source.open",
     "source.status",
     "source.index",
+    "result.query_max",
     "view.apply",
     "view.read",
     "capture.execute",

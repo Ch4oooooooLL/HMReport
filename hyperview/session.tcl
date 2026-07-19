@@ -13,7 +13,7 @@ proc ::CAEReport::dispatch {line} {
     if {$command eq "session.ping"} {
         ::CAEReport::success $id "{\"status\":\"ready\",\"version\":\"HyperView 2019\"}"
     } elseif {$command eq "session.capabilities"} {
-        ::CAEReport::success $id {"protocol_version":"1.0","capabilities":["session.ping","session.capabilities","source.open","source.status","source.index","view.apply","view.read","capture.execute","view.restore","session.shutdown"]}
+        ::CAEReport::success $id {{"protocol_version":"1.0","capabilities":["session.ping","session.capabilities","source.open","source.status","source.index","result.query_max","view.apply","view.read","capture.execute","view.restore","session.shutdown"]}}
     } elseif {$command eq "session.shutdown"} {
         ::CAEReport::success $id "{\"status\":\"stopping\"}"
         set shouldStop 1
@@ -23,6 +23,8 @@ proc ::CAEReport::dispatch {line} {
         ::CAEReport::sourceOpen $id $line
     } elseif {$command eq "source.index"} {
         ::CAEReport::sourceIndex $id
+    } elseif {$command eq "result.query_max"} {
+        ::CAEReport::resultQueryMax $id $line
     } elseif {$command eq "view.read"} {
         ::CAEReport::viewRead $id
     } elseif {$command eq "view.apply" || $command eq "view.restore"} {

@@ -30,3 +30,14 @@ proc ::CAEReport::jsonString {json key} {
     }
     return ""
 }
+
+proc ::CAEReport::jsonStringArray {values} {
+    set result ""
+    foreach value $values {
+        if {$result ne ""} {
+            append result ","
+        }
+        append result "\"[::CAEReport::jsonEscape $value]\""
+    }
+    return "\[$result\]"
+}

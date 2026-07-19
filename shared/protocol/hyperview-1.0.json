@@ -7,6 +7,7 @@
     "source.open",
     "source.status",
     "source.index",
+    "result.query_max",
     "view.apply",
     "view.read",
     "capture.execute",
@@ -16,4 +17,3 @@
   "forbidden": ["tcl.eval", "shell.exec", "file.delete"],
   "max_message_bytes": 1048576
 }
-

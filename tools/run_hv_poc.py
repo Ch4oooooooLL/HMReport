@@ -27,9 +27,33 @@ def main() -> None:
     }
     if args.h3d:
         result["open"] = session.request("source.open", {"path": str(args.h3d.resolve())})
-        result["index"] = session.request("source.index")
-        capture = args.output.parent / "hyperview-poc.png"
-        result["capture"] = session.request("capture.execute", {"path": str(capture.resolve())})
+        index = session.request("source.index")
+        result["index"] = index
+        for result_type in index.get("result_types", []):
+            name = str(result_type.get("name", ""))
+            if "stress" in name.lower():
+                result["stress_max"] = session.request(
+                    "result.query_max",
+                    {
+                        "subcase_id": "1",
+                        "simulation_index": "0",
+                        "data_type": name,
+                        "component": "vonMises",
+                        "count": "3",
+                    },
+                )
+                break
+        captures: dict[str, object] = {}
+        view_apply: dict[str, object] = {}
+        for view in ("isometric", "front", "right", "top"):
+            view_apply[view] = session.request("view.apply", {"camera_preset": view})
+            capture = args.output.parent / f"hyperview-poc-{view}.png"
+            captures[view] = session.request(
+                "capture.execute",
+                {"path": str(capture.resolve()), "width": "1920", "height": "1080"},
+            )
+        result["captures"] = captures
+        result["view_apply"] = view_apply
         result["view_state"] = session.request("view.read")
     session.stop()
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -24,18 +24,33 @@ set host [::CAEReport::jsonString $contextJson worker_host]
 regexp {"worker_port"[[:space:]]*:[[:space:]]*([0-9]+)} $contextJson -> port
 
 set ::CAEReport::socketChannel [socket $host $port]
-fconfigure $::CAEReport::socketChannel -encoding utf-8 -translation lf -buffering line -blocking 1
-set capabilitiesJson {["session.ping","session.capabilities","source.open","source.status","source.index","view.apply","view.read","capture.execute","view.restore","session.shutdown"]}
+fconfigure $::CAEReport::socketChannel -encoding utf-8 -translation lf -buffering line -blocking 0
+set capabilitiesJson {["session.ping","session.capabilities","source.open","source.status","source.index","result.query_max","view.apply","view.read","capture.execute","view.restore","session.shutdown"]}
 ::CAEReport::sendLine "{\"type\":\"handshake\",\"session_id\":\"[::CAEReport::jsonEscape $::CAEReport::sessionId]\",\"token\":\"[::CAEReport::jsonEscape $::CAEReport::authToken]\",\"hyperview_version\":\"2019\",\"protocol_version\":\"1.0\",\"capabilities\":$capabilitiesJson}"
 
-while {!$::CAEReport::shouldStop && [gets $::CAEReport::socketChannel line] >= 0} {
-    if {$line ne ""} {
-        if {[catch {::CAEReport::dispatch $line} message]} {
-            ::CAEReport::failure "" "HV_COMMAND_FAILED" $message
+set ::CAEReport::eventLoopDone 0
+proc ::CAEReport::socketReadable {} {
+    variable socketChannel
+    variable shouldStop
+    variable eventLoopDone
+    if {[eof $socketChannel]} {
+        set eventLoopDone 1
+        return
+    }
+    while {[gets $socketChannel line] >= 0} {
+        if {$line ne ""} {
+            if {[catch {::CAEReport::dispatch $line} message]} {
+                ::CAEReport::failure "" "HV_COMMAND_FAILED" $message
+            }
         }
     }
-    update
+    if {$shouldStop} {
+        set eventLoopDone 1
+    }
 }
+fileevent $::CAEReport::socketChannel readable ::CAEReport::socketReadable
+vwait ::CAEReport::eventLoopDone
+fileevent $::CAEReport::socketChannel readable {}
 catch {close $::CAEReport::socketChannel}
 after 100
 exit

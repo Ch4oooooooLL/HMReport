@@ -62,9 +62,16 @@ def main() -> None:
         with httpx.Client(base_url=base_url, timeout=30) as client:
             wait_ready(client)
             worker_command = (
-                [str(args.worker_exe.resolve()), "--server", base_url]
+                [str(args.worker_exe.resolve()), "--server", base_url, "--fake-hyperview"]
                 if args.worker_exe
-                else [sys.executable, "-m", "cae_report_worker.main", "--server", base_url]
+                else [
+                    sys.executable,
+                    "-m",
+                    "cae_report_worker.main",
+                    "--server",
+                    base_url,
+                    "--fake-hyperview",
+                ]
             )
             worker = subprocess.Popen(
                 worker_command,

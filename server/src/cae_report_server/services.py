@@ -367,6 +367,66 @@ class WorkbenchService:
                     )
         return self.get_run(run_id)
 
+    def rerun_project(self, project_id: str) -> dict[str, Any]:
+        runs = self.list_runs(project_id)
+        if not runs:
+            raise ValueError("RUN_NOT_FOUND")
+        terminal = {"completed", "completed_with_errors", "failed", "cancelled"}
+        if any(run["status"] not in terminal for run in runs):
+            raise ValueError("RUN_ALREADY_ACTIVE")
+
+        project = self.get_project(project_id)
+        sources = {item["source_type"]: item for item in project["sources"]}
+        checks: dict[str, dict[str, Any]] = {}
+        changes: dict[str, dict[str, Any]] = {}
+        for kind in ("fem", "h3d"):
+            source = sources.get(kind)
+            if source is None:
+                raise ValueError("SOURCE_MISSING")
+            check = verify_source(Path(source["absolute_path"]), kind)
+            if check["availability"] != "available":
+                raise ValueError("SOURCE_MISSING_OR_CHANGED")
+            checks[kind] = check
+            changes[kind] = {
+                "path": source["absolute_path"],
+                "previous_fingerprint": source["fingerprint"],
+                "current_fingerprint": check["fingerprint"],
+                "changed": source["fingerprint"] != check["fingerprint"],
+            }
+
+        timestamp = now()
+        for kind, check in checks.items():
+            source = sources[kind]
+            self.db.execute(
+                """UPDATE result_sources SET size_bytes=?,modified_time_ns=?,fingerprint_type=?,
+                   fingerprint=?,availability='available',last_verified_at=?,updated_at=? WHERE id=?""",
+                (
+                    check["size_bytes"],
+                    check["modified_time_ns"],
+                    check["fingerprint_type"],
+                    check["fingerprint"],
+                    timestamp,
+                    timestamp,
+                    source["id"],
+                ),
+            )
+
+        previous = runs[0]
+        previous_configuration = dict(previous.get("configuration", {}))
+        task_types = list(previous_configuration.pop("task_types", TASK_TYPES))
+        next_no = int(previous["run_no"]) + 1
+        request = RunCreate(
+            name=f"重新分析 {next_no:03d}",
+            task_types=task_types,
+            configuration={
+                **previous_configuration,
+                "rerun_of": previous["id"],
+                "source_changes": changes,
+            },
+        )
+        run = self.create_run(project_id, request)
+        return self.start_run(run["id"])
+
     def list_runs(self, project_id: str) -> list[dict[str, Any]]:
         rows = self.db.all("SELECT * FROM analysis_runs WHERE project_id=? ORDER BY run_no DESC", (project_id,))
         return [decode_json_fields(row) or {} for row in rows]
@@ -552,8 +612,12 @@ class WorkbenchService:
         if table not in allowed:
             raise ValueError(table)
         self.db.execute(f"DELETE FROM {table} WHERE run_id=?", (run_id,))
+        used_ids: set[str] = set()
         for index, item in enumerate(items):
             entity_id = f"{run_id}:{prefix}:{item.get('id', index)}"
+            if entity_id in used_ids:
+                entity_id = f"{entity_id}:{index}"
+            used_ids.add(entity_id)
             self.db.execute(f"INSERT INTO {table}(id,run_id,data_json) VALUES(?,?,?)", (entity_id, run_id, json.dumps(item, ensure_ascii=False)))
 
     def _persist_capture(self, run_id: str, hotspot_id: str | None, capture: dict[str, Any]) -> None:
@@ -680,10 +744,13 @@ class WorkbenchService:
         kind: str,
         *,
         bring_to_front: bool = False,
+        restore_request_id: str | None = None,
     ) -> dict[str, Any]:
         capture = self.get_capture(capture_id)
         action_id = new_id("action")
-        payload = {"bring_to_front": bring_to_front}
+        payload: dict[str, Any] = {"bring_to_front": bring_to_front}
+        if restore_request_id is not None:
+            payload["restore_request_id"] = restore_request_id
         self.db.execute(
             """INSERT INTO action_jobs(id,kind,capture_id,run_id,status,payload_json,created_at)
                VALUES(?,?,?,?, 'queued',?,?)""",
@@ -699,9 +766,25 @@ class WorkbenchService:
                VALUES(?,?,'queued',?,'[]',?)""",
             (request_id, capture_id, int(bring_to_front), now()),
         )
-        job = self.queue_capture_action(capture_id, "view.restore", bring_to_front=bring_to_front)
+        job = self.queue_capture_action(
+            capture_id,
+            "view.restore",
+            bring_to_front=bring_to_front,
+            restore_request_id=request_id,
+        )
         job["restore_request_id"] = request_id
         return job
+
+    def get_restore_request(self, restore_request_id: str) -> dict[str, Any]:
+        request = self.db.one(
+            "SELECT * FROM view_restore_requests WHERE id=?",
+            (restore_request_id,),
+        )
+        if request is None:
+            raise KeyError(restore_request_id)
+        request["bring_to_front"] = bool(request["bring_to_front"])
+        request["missing"] = json.loads(request.pop("missing_json"))
+        return request
 
     def claim_action(self, worker_id: str) -> dict[str, Any] | None:
         del worker_id
@@ -743,10 +826,16 @@ class WorkbenchService:
             self._persist_capture(job["run_id"], None, result["capture"])
         if job["kind"] == "view.restore":
             restore_status = result.get("restore", "failed") if status == "completed" else "failed"
+            payload = json.loads(job["payload_json"])
             self.db.execute(
                 """UPDATE view_restore_requests SET status=?,missing_json=?,finished_at=?
-                   WHERE id=(SELECT id FROM view_restore_requests WHERE capture_id=? AND status='queued' ORDER BY created_at DESC LIMIT 1)""",
-                (restore_status, json.dumps(result.get("missing", [])), now(), job["capture_id"]),
+                   WHERE id=?""",
+                (
+                    restore_status,
+                    json.dumps(result.get("missing", [])),
+                    now(),
+                    payload.get("restore_request_id"),
+                ),
             )
         self.db.execute(
             """UPDATE action_jobs SET status=?,result_json=?,error_code=?,error_message=?,finished_at=? WHERE id=?""",

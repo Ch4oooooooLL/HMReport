@@ -14,6 +14,12 @@ proc ::CAEReport::sourceOpen {id line} {
         caeWindow GetClientHandle caeClient
         set modelId [caeClient AddModel $path]
         caeClient SetActiveModel $modelId
+        caeClient GetModelHandle caeModel $modelId
+        set resultCode [caeModel SetResult $path]
+        if {$resultCode != 0} {
+            error "HyperView SetResult failed with code $resultCode"
+        }
+        caeClient Draw
         hwi CloseStack
     } message]} {
         catch {hwi CloseStack}

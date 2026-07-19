@@ -6,7 +6,7 @@ from typing import Any
 
 from cae_report_worker.fem import FemParser
 from cae_report_worker.hotspots import deduplicate_hotspots
-from cae_report_worker.hyperview import FakeHyperViewAdapter
+from cae_report_worker.hyperview import FakeHyperViewAdapter, RealHyperViewAdapter
 from cae_report_worker.imaging import create_capture
 
 Progress = Callable[[int, int, str], None]
@@ -17,7 +17,28 @@ class TaskExecutor:
         self.parser = FemParser()
         self.fake_hyperview = fake_hyperview
         self._models: dict[str, Any] = {}
-        self._hv: dict[str, FakeHyperViewAdapter] = {}
+        self._hv: dict[str, FakeHyperViewAdapter | RealHyperViewAdapter] = {}
+
+    def close(self) -> None:
+        for run_id in list(self._hv):
+            self.release_run(run_id)
+        self._models.clear()
+
+    def release_run(self, run_id: str) -> None:
+        adapter = self._hv.pop(run_id, None)
+        if isinstance(adapter, RealHyperViewAdapter):
+            adapter.close()
+        self._models.pop(run_id, None)
+
+    def release_action_session(self, run_id: str) -> None:
+        adapter = self._hv.get(run_id)
+        if (
+            isinstance(adapter, RealHyperViewAdapter)
+            and not adapter.background
+            and adapter.is_alive
+        ):
+            return
+        self.release_run(run_id)
 
     def execute(self, task: dict[str, Any], progress: Progress) -> dict[str, Any]:
         task_type = task["task_type"]
@@ -40,13 +61,7 @@ class TaskExecutor:
             }[task_type]()
             progress(100, 100, "FEM 任务完成")
             return result
-        hv = self._hv.get(run_id)
-        if hv is None:
-            if not self.fake_hyperview:
-                raise RuntimeError("HV_START_FAILED: real HyperView session is not configured")
-            hv = FakeHyperViewAdapter()
-            hv.open_source(Path(snapshot["h3d"]["path"]), snapshot["h3d"]["fingerprint"])
-            self._hv[run_id] = hv
+        hv = self._adapter(run_id, project_path, snapshot)
         if task_type == "h3d.result_index":
             progress(60, 100, "索引 H3D 结果")
             result = hv.index()
@@ -63,7 +78,24 @@ class TaskExecutor:
             views = ["global", "local_isometric", "front", "right", "top", "component_isolate", "component_context"]
             for hotspot_index, hotspot in enumerate(hotspots):
                 hotspot["captures"] = [
-                    create_capture(project_path, run_id, f"{kind.title()} hotspot #{hotspot['rank']}", view, hotspot=hotspot, source_fingerprint=snapshot["h3d"]["fingerprint"])
+                    (
+                        create_capture(
+                            project_path,
+                            run_id,
+                            f"{kind.title()} hotspot #{hotspot['rank']}",
+                            view,
+                            hotspot=hotspot,
+                            source_fingerprint=snapshot["h3d"]["fingerprint"],
+                        )
+                        if isinstance(hv, FakeHyperViewAdapter)
+                        else hv.capture(
+                            project_path,
+                            run_id,
+                            f"{kind.title()} hotspot #{hotspot['rank']}",
+                            view,
+                            hotspot=hotspot,
+                        )
+                    )
                     for view in views
                 ]
                 progress(20 + int(70 * (hotspot_index + 1) / len(hotspots)), 100, f"生成热点 {hotspot_index + 1}/{len(hotspots)}")
@@ -71,7 +103,17 @@ class TaskExecutor:
         elif task_type == "capture.standard_views":
             views = ["global_model", "mesh", "constraints", "loads", "global_stress", "global_displacement", "front", "rear", "left", "right", "top"]
             captures = [
-                create_capture(project_path, run_id, f"Standard / {view}", view, source_fingerprint=snapshot["h3d"]["fingerprint"])
+                (
+                    create_capture(
+                        project_path,
+                        run_id,
+                        f"Standard / {view}",
+                        view,
+                        source_fingerprint=snapshot["h3d"]["fingerprint"],
+                    )
+                    if isinstance(hv, FakeHyperViewAdapter)
+                    else hv.capture(project_path, run_id, f"Standard / {view}", view)
+                )
                 for view in views
             ]
             result = {"captures": captures}
@@ -84,27 +126,87 @@ class TaskExecutor:
 
     def execute_action(self, action: dict[str, Any]) -> dict[str, Any]:
         kind = action["kind"]
+        run_id = str(action["run_id"])
+        project_path = Path(action["project"]["workspace_path"])
+        snapshot = action["run"]["input_snapshot"]
+        bring_to_front = bool(action.get("payload", {}).get("bring_to_front", False))
+        adapter = self._adapter(
+            run_id,
+            project_path,
+            snapshot,
+            background=not (kind == "view.restore" and bring_to_front),
+        )
         if kind == "capture.recapture":
             capture = action["capture"]
             view_state = action["view_state"]
-            generated = create_capture(
-                Path(action["project"]["workspace_path"]),
-                action["run_id"],
-                capture["name"],
-                capture["view_name"],
-                source_fingerprint=str(view_state.get("source_fingerprint", "")),
-                logical_capture_id=capture["id"],
+            generated = (
+                create_capture(
+                    project_path,
+                    run_id,
+                    capture["name"],
+                    capture["view_name"],
+                    source_fingerprint=str(view_state.get("source_fingerprint", "")),
+                    logical_capture_id=capture["id"],
+                )
+                if isinstance(adapter, FakeHyperViewAdapter)
+                else adapter.capture(
+                    project_path,
+                    run_id,
+                    capture["name"],
+                    capture["view_name"],
+                    logical_capture_id=capture["id"],
+                    view_state=view_state,
+                )
             )
-            generated["view_state"] = view_state
+            if isinstance(adapter, FakeHyperViewAdapter):
+                generated["view_state"] = view_state
             return {"capture": generated}
         if kind == "view.restore":
-            if not self.fake_hyperview:
-                raise RuntimeError("VIEW_RESTORE_FAILED: real HyperView adapter is not connected")
-            adapter = FakeHyperViewAdapter()
-            snapshot = action["run"]["input_snapshot"]["h3d"]
-            adapter.open_source(Path(snapshot["path"]), snapshot["fingerprint"])
+            if isinstance(adapter, RealHyperViewAdapter):
+                return adapter.apply_view(
+                    action["view_state"],
+                    bring_to_front=bring_to_front,
+                )
             return adapter.apply_view(action["view_state"])
         raise RuntimeError(f"unknown action kind: {kind}")
+
+    def _adapter(
+        self,
+        run_id: str,
+        project_path: Path,
+        snapshot: dict[str, Any],
+        *,
+        background: bool | None = None,
+    ) -> FakeHyperViewAdapter | RealHyperViewAdapter:
+        adapter = self._hv.get(run_id)
+        if (
+            isinstance(adapter, RealHyperViewAdapter)
+            and not adapter.is_alive
+        ):
+            adapter.close()
+            self._hv.pop(run_id, None)
+            adapter = None
+        if adapter is not None:
+            if (
+                not isinstance(adapter, RealHyperViewAdapter)
+                or background is None
+                or adapter.background == background
+            ):
+                return adapter
+            adapter.close()
+            self._hv.pop(run_id, None)
+        if self.fake_hyperview:
+            adapter = FakeHyperViewAdapter()
+        else:
+            adapter = RealHyperViewAdapter(
+                run_id,
+                project_path / "runtime" / "hyperview",
+                background=background,
+            )
+        h3d = snapshot["h3d"]
+        adapter.open_source(Path(h3d["path"]), str(h3d["fingerprint"]))
+        self._hv[run_id] = adapter
+        return adapter
 
     @staticmethod
     def _report_document(run_id: str, project: dict[str, Any]) -> dict[str, Any]:

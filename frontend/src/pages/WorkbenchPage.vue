@@ -2,13 +2,13 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Sortable, { type SortableEvent } from 'sortablejs'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { api, post, put } from '../api/client'
 import CaptureReview from '../components/CaptureReview.vue'
 import MetricCard from '../components/MetricCard.vue'
 import SummaryChart from '../components/SummaryChart.vue'
 import { useWorkbenchStore } from '../stores/workbench'
-import type { Hotspot, ReportDocument, ReportSlide } from '../types'
+import type { Hotspot, ReportDocument, ReportSlide, Run } from '../types'
 
 const route = useRoute()
 const store = useWorkbenchStore()
@@ -99,6 +99,27 @@ async function controlRun(action: string) {
   await store.loadProject(projectId.value)
 }
 
+async function rerunProject() {
+  try {
+    await ElMessageBox.confirm(
+      '将重新读取当前 FEM/H3D 并接受最新文件指纹。上一次 Run 的结果、截图和报告会保留在历史记录中。',
+      '重新运行分析',
+      { confirmButtonText: '创建并运行', cancelButtonText: '取消', type: 'warning' },
+    )
+  } catch {
+    return
+  }
+  const rerun = await post<Run>(`/api/v1/projects/${projectId.value}/rerun`)
+  await store.loadProject(projectId.value, rerun.id)
+  await loadPage('run')
+  ElMessage.success(`RUN ${String(rerun.run_no).padStart(3, '0')} 已开始`)
+}
+
+async function selectRun(runId: string) {
+  await store.selectRun(runId)
+  await loadPage(activePage.value)
+}
+
 async function openHotspot(item: Hotspot) {
   selectedHotspot.value = await api(`/api/v1/hotspots/${item.id}`)
   hotspotDialog.value = true
@@ -182,6 +203,20 @@ function percent(current: number, total: number) { return total ? Math.round(cur
           <h2>{{ menu.find((item) => item[0] === activePage)?.[1] }}</h2>
         </div>
         <div class="run-state">
+          <el-select
+            :model-value="store.selectedRunId"
+            aria-label="Run 历史"
+            style="width: 245px"
+            @change="selectRun"
+          >
+            <el-option
+              v-for="item in store.project?.runs"
+              :key="item.id"
+              :label="`RUN ${String(item.run_no).padStart(3, '0')} · ${item.name} · ${item.status}`"
+              :value="item.id"
+            />
+          </el-select>
+          <el-button type="primary" plain @click="rerunProject">重新运行</el-button>
           <span :class="`run-pill status-${store.run?.status}`">{{ store.run?.status || 'no run' }}</span>
           <el-progress type="circle" :width="46" :stroke-width="5" :percentage="store.run?.progress ?? 0" />
         </div>
@@ -207,7 +242,7 @@ function percent(current: number, total: number) { return total ? Math.round(cur
           <section class="panel">
             <div class="panel-heading"><h3>最新 Run</h3><span>{{ store.run?.name }}</span></div>
             <div class="run-summary"><strong>{{ store.run?.progress ?? 0 }}%</strong><p>已完成 {{ store.run?.tasks.filter((t) => t.status === 'completed').length ?? 0 }} / {{ store.run?.tasks.length ?? 0 }} 项</p></div>
-            <div class="button-row"><el-button type="primary" @click="controlRun('start')">启动</el-button><el-button @click="controlRun('pause')">暂停</el-button><el-button @click="controlRun('cancel')">取消</el-button></div>
+            <div class="button-row"><el-button type="primary" @click="controlRun('start')">启动</el-button><el-button @click="controlRun('pause')">暂停</el-button><el-button @click="controlRun('cancel')">取消</el-button><el-button type="warning" plain @click="rerunProject">重新运行</el-button></div>
           </section>
         </div>
         <div class="grid two">

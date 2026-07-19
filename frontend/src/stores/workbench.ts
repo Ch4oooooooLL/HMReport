@@ -7,6 +7,7 @@ export const useWorkbenchStore = defineStore('workbench', () => {
   const projects = ref<Project[]>([])
   const project = ref<Project | null>(null)
   const run = ref<Run | null>(null)
+  const selectedRunId = ref('')
   const loading = ref(false)
   const error = ref('')
   const connected = ref(false)
@@ -18,18 +19,27 @@ export const useWorkbenchStore = defineStore('workbench', () => {
     projects.value = await api<Project[]>('/api/v1/projects')
   }
 
-  async function loadProject(projectId: string) {
+  async function loadProject(projectId: string, preferredRunId?: string) {
     loading.value = true
     error.value = ''
     try {
       project.value = await api<Project>(`/api/v1/projects/${projectId}`)
-      const runId = project.value.runs?.[0]?.id
+      const requestedRunId = preferredRunId || selectedRunId.value
+      const runId = project.value.runs?.some((item) => item.id === requestedRunId)
+        ? requestedRunId
+        : project.value.runs?.[0]?.id
+      selectedRunId.value = runId || ''
       run.value = runId ? await api<Run>(`/api/v1/runs/${runId}`) : null
     } catch (reason) {
       error.value = reason instanceof Error ? reason.message : String(reason)
     } finally {
       loading.value = false
     }
+  }
+
+  async function selectRun(runId: string) {
+    selectedRunId.value = runId
+    run.value = await api<Run>(`/api/v1/runs/${runId}`)
   }
 
   function connectEvents(projectId: string) {
@@ -46,6 +56,18 @@ export const useWorkbenchStore = defineStore('workbench', () => {
     }
   }
 
-  return { projects, project, run, latestRun, loading, error, connected, loadProjects, loadProject, connectEvents }
+  return {
+    projects,
+    project,
+    run,
+    selectedRunId,
+    latestRun,
+    loading,
+    error,
+    connected,
+    loadProjects,
+    loadProject,
+    selectRun,
+    connectEvents,
+  }
 })
-

@@ -18,7 +18,7 @@ npm --prefix frontend run build
 
 ```powershell
 $env:CAE_REPORT_FAKE_HV = "1"
-& .\.venv\Scripts\cae-report-worker.exe --server http://127.0.0.1:8765
+& .\.venv\Scripts\cae-report-worker.exe --server http://127.0.0.1:8765 --fake-hyperview
 ```
 
 桌面端会自动启动/复用 Server 和 Worker：
@@ -44,5 +44,13 @@ npm --prefix frontend run build
 
 运行 `tools/package.ps1` 生成 Windows 发布包。用户直接运行压缩包根目录的
 `CAEReportDesktop.exe`；`CAEReportServer` 和 `CAEReportWorker` 是内部进程目录，需与主程序保持相对位置。
+发布版 Desktop 默认以 `--real-hyperview` 启动 Worker；只有显式设置
+`CAE_REPORT_FAKE_HV=1` 时才使用占位图适配器。
+真实 HyperView 默认通过 `-b` 在后台无界面运行，并在 Run 或单次视图动作完成后
+自动退出。排查现场问题时可临时设置 `CAE_REPORT_HYPERVIEW_BACKGROUND=0`
+恢复前台窗口。
+Desktop 使用 Windows Job Object 统一托管 Server、Worker 和 HyperView 子进程树。
+“重新运行”会重新读取相同 FEM/H3D 路径的当前内容并创建新 Run，旧 Run 继续保留
+在 Web 工作台的 Run 历史中。
 
 原始 spec 仅保留在源码仓库中，不进入发布压缩包。

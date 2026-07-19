@@ -43,8 +43,12 @@ def test_full_fake_run_capture_review_and_pptx(client: TestClient, project_paylo
     action = service.claim_action("integration-worker")
     assert action and action["id"] == restore["id"]
     service.complete_action(action["id"], "completed", executor.execute_action(action), None, None)
-    restore_row = client.app.state.db.one("SELECT status FROM view_restore_requests WHERE capture_id=?", (capture["id"],))
-    assert restore_row == {"status": "exact"}
+    restore_row = client.get(
+        f"/api/v1/view-restores/{restore['restore_request_id']}"
+    ).json()
+    assert restore_row["status"] == "exact"
+    assert restore_row["missing"] == []
+    assert restore_row["bring_to_front"] is True
     report = client.get(f"/api/v1/runs/{run_id}/report").json()
     assert len(report["slides"]) == 12
     exported = client.post(f"/api/v1/runs/{run_id}/report/export-pptx").json()

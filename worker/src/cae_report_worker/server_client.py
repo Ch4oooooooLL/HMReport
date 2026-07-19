@@ -26,8 +26,9 @@ class ServerClient:
     def progress(self, worker_id: str, task_id: str, current: int, total: int, message: str) -> None:
         self._post(f"/api/v1/internal/tasks/{task_id}/progress", {"worker_id": worker_id, "progress_current": current, "progress_total": total, "message": message})
 
-    def complete(self, worker_id: str, task_id: str, status: str, result: dict[str, Any], error_code: str | None = None, error_message: str | None = None) -> None:
-        self._post(f"/api/v1/internal/tasks/{task_id}/complete", {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message})
+    def complete(self, worker_id: str, task_id: str, status: str, result: dict[str, Any], error_code: str | None = None, error_message: str | None = None) -> dict[str, Any]:
+        response = self._post(f"/api/v1/internal/tasks/{task_id}/complete", {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message})
+        return dict(response)
 
     def complete_action(self, worker_id: str, action_id: str, status: str, result: dict[str, Any], error_code: str | None = None, error_message: str | None = None) -> None:
         self._post(f"/api/v1/internal/actions/{action_id}/complete", {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message})

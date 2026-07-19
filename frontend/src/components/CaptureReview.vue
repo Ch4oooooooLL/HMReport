@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { post } from '../api/client'
+import { api, post } from '../api/client'
 import type { Capture } from '../types'
 
 const props = defineProps<{ captures: Capture[] }>()
@@ -9,6 +9,7 @@ const emit = defineEmits<{ changed: [] }>()
 const active = ref(0)
 const current = computed(() => props.captures[active.value])
 const version = computed(() => current.value?.versions.find((item) => item.is_current) ?? current.value?.versions[0])
+const restoring = ref(false)
 
 async function action(name: 'approve' | 'reject' | 'recapture') {
   if (!current.value) return
@@ -18,9 +19,38 @@ async function action(name: 'approve' | 'reject' | 'recapture') {
 }
 
 async function restore(bringToFront: boolean) {
-  if (!current.value) return
-  await post(`/api/v1/captures/${current.value.id}/restore-view`, { bring_to_front: bringToFront })
-  ElMessage.success('已创建高优先级视图恢复任务')
+  if (!current.value || restoring.value) return
+  restoring.value = true
+  try {
+    const queued = await post<{ restore_request_id: string }>(
+      `/api/v1/captures/${current.value.id}/restore-view`,
+      { bring_to_front: bringToFront },
+    )
+    const deadline = Date.now() + 120_000
+    while (Date.now() < deadline) {
+      const request = await api<{ status: string; missing: string[] }>(
+        `/api/v1/view-restores/${queued.restore_request_id}`,
+      )
+      if (request.status === 'exact') {
+        ElMessage.success(bringToFront ? '视图已恢复并显示在 HyperView 中' : '视图已在后台精确恢复')
+        return
+      }
+      if (request.status === 'partial') {
+        ElMessage.warning(`视图已部分恢复，未恢复字段：${request.missing.join('、') || '未知'}`)
+        return
+      }
+      if (request.status === 'failed') {
+        ElMessage.error('视图恢复失败，请查看诊断日志')
+        return
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 300))
+    }
+    ElMessage.warning('视图恢复仍在执行，可稍后重试')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '视图恢复失败')
+  } finally {
+    restoring.value = false
+  }
 }
 </script>
 
@@ -39,8 +69,8 @@ async function restore(bringToFront: boolean) {
       <el-button type="success" @click="action('approve')">批准</el-button>
       <el-button type="danger" plain @click="action('reject')">否决</el-button>
       <el-button @click="action('recapture')">重拍</el-button>
-      <el-button @click="restore(false)">恢复到后台</el-button>
-      <el-button type="primary" plain @click="restore(true)">恢复并显示 HyperView</el-button>
+      <el-button :loading="restoring" :disabled="restoring" @click="restore(false)">恢复到后台</el-button>
+      <el-button type="primary" plain :loading="restoring" :disabled="restoring" @click="restore(true)">恢复并显示 HyperView</el-button>
       <span class="version">共 {{ current.versions.length }} 个版本</span>
     </div>
   </div>
@@ -58,4 +88,3 @@ async function restore(bringToFront: boolean) {
 .version { margin-left: auto; color: #7a8b97; font-size: 12px; }
 .status-approved { color: #21865c; }.status-rejected { color: #c14c4c; }.status-pending { color: #a77019; }
 </style>
-

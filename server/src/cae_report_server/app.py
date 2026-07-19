@@ -193,6 +193,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         await events.publish("run.created", {"run_id": result["id"], "project_id": project_id})
         return result
 
+    @app.post("/api/v1/projects/{project_id}/rerun", status_code=201)
+    async def rerun_project(project_id: str) -> dict[str, Any]:
+        try:
+            result = service.rerun_project(project_id)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+        await events.publish("run.created", {"run_id": result["id"], "project_id": project_id})
+        await events.publish("run.started", {"run_id": result["id"]})
+        return result
+
     @app.get("/api/v1/runs/{run_id}")
     def get_run(run_id: str) -> dict[str, Any]:
         return service.get_run(run_id)
@@ -281,6 +291,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         result = service.restore_capture(capture_id, request.bring_to_front)
         await events.publish("task.started", {"task_type": "view.restore", **result})
         return result
+
+    @app.get("/api/v1/view-restores/{restore_request_id}")
+    def get_view_restore(restore_request_id: str) -> dict[str, Any]:
+        return service.get_restore_request(restore_request_id)
 
     def version_file(version_id: str, field: str) -> FileResponse:
         row = db.one("SELECT image_path,thumbnail_path FROM capture_versions WHERE id=?", (version_id,))
@@ -438,6 +452,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         await events.publish("run.progress", {"run_id": run["id"], "status": run["status"], "progress": run["progress"]})
         if run["status"] in {"completed", "completed_with_errors", "failed", "cancelled"}:
             await events.publish("run.completed", {"run_id": run["id"], "status": run["status"]})
+        task["run_status"] = run["status"]
         return task
 
     @app.post("/api/v1/internal/actions/claim")

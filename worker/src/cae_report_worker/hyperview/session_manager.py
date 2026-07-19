@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ctypes
 import json
 import os
 import secrets
@@ -34,7 +35,10 @@ class HyperViewSession:
         raw = self.reader.readline()
         if not raw:
             raise ProtocolError("HyperView Tcl disconnected")
-        response = json.loads(raw)
+        try:
+            response = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ProtocolError(f"HV_PROTOCOL_INVALID_JSON: {raw!r}") from exc
         if response.get("id") != request_id:
             raise ProtocolError("response id mismatch")
         if not response.get("success"):
@@ -55,12 +59,45 @@ class HyperViewSession:
                 except subprocess.TimeoutExpired:
                     self.process.kill()
 
+    def bring_to_front(self) -> bool:
+        if os.name != "nt" or self.process.poll() is not None:
+            return False
+
+        user32 = ctypes.windll.user32
+        target_pid = self.process.pid
+        found: list[int] = []
+        enum_callback = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+
+        def collect_window(window: int, _: int) -> bool:
+            process_id = ctypes.c_ulong()
+            user32.GetWindowThreadProcessId(window, ctypes.byref(process_id))
+            if process_id.value == target_pid and user32.IsWindowVisible(window):
+                found.append(window)
+                return False
+            return True
+
+        callback = enum_callback(collect_window)
+        user32.EnumWindows(callback, 0)
+        if not found:
+            return False
+        window = found[0]
+        user32.ShowWindow(window, 9)  # SW_RESTORE
+        return bool(user32.SetForegroundWindow(window))
+
 
 class HyperViewSessionManager:
-    def __init__(self, runtime_dir: Path, hyperview_exe: Path, bootstrap_tcl: Path) -> None:
+    def __init__(
+        self,
+        runtime_dir: Path,
+        hyperview_exe: Path,
+        bootstrap_tcl: Path,
+        *,
+        background: bool = True,
+    ) -> None:
         self.runtime_dir = runtime_dir
         self.hyperview_exe = hyperview_exe
         self.bootstrap_tcl = bootstrap_tcl
+        self.background = background
 
     def start(self, run_id: str, h3d_path: Path | None = None, timeout: float = 45.0) -> HyperViewSession:
         if not self.hyperview_exe.is_file():
@@ -86,8 +123,18 @@ class HyperViewSessionManager:
             }
             context_path.write_text(json.dumps(context, ensure_ascii=False, indent=2), encoding="utf-8")
             environment = os.environ.copy()
-            environment["CAE_REPORT_HV_CONTEXT"] = str(context_path)
-            command = [str(self.hyperview_exe), "/clientconfig", "hwpost.dat", "-tcl", str(self.bootstrap_tcl)]
+            # HyperView 2019/Tcl decodes Windows environment-variable values
+            # with the legacy system code page. Passing an absolute path that
+            # contains a Chinese project name therefore produces mojibake.
+            # The process already starts in session_dir, so an ASCII relative
+            # filename is both sufficient and encoding-safe.
+            environment["CAE_REPORT_HV_CONTEXT"] = context_path.name
+            command = [str(self.hyperview_exe)]
+            if self.background:
+                command.append("-b")
+            command.extend(
+                ["/clientconfig", "hwpost.dat", "-tcl", str(self.bootstrap_tcl)]
+            )
             process = subprocess.Popen(command, env=environment, cwd=session_dir, text=True)
             try:
                 connection, _ = listener.accept()

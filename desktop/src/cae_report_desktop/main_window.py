@@ -52,7 +52,13 @@ class MainWindow(QMainWindow):
     def _build_ui(self) -> None:
         toolbar = self.addToolBar("项目")
         toolbar.setMovable(False)
-        for text, slot in (("新建项目", self.new_project), ("刷新", self.refresh), ("打开 Web 结果", self.open_web), ("打开项目文件夹", self.open_folder)):
+        for text, slot in (
+            ("新建项目", self.new_project),
+            ("重新运行", self.rerun_project),
+            ("刷新", self.refresh),
+            ("打开 Web 结果", self.open_web),
+            ("打开项目文件夹", self.open_folder),
+        ):
             action = QAction(text, self)
             action.triggered.connect(slot)
             toolbar.addAction(action)
@@ -222,6 +228,27 @@ class MainWindow(QMainWindow):
             self._fill_run(self.current_run)
         except Exception as exc:
             QMessageBox.warning(self, "操作失败", str(exc))
+
+    def rerun_project(self) -> None:
+        if self.client is None or self.current_project is None:
+            return
+        answer = QMessageBox.question(
+            self,
+            "重新运行分析",
+            "将重新读取当前 FEM/H3D、接受最新文件指纹并创建一个新 Run。"
+            "上一次 Run 的结果、截图和报告会继续保留。是否继续？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            self.current_run = self.client.post(
+                f"/api/v1/projects/{self.current_project['id']}/rerun"
+            )
+            self._fill_run(self.current_run)
+            self.refresh()
+        except Exception as exc:
+            QMessageBox.warning(self, "重新运行失败", str(exc))
 
     def open_web(self) -> None:
         if self.client and self.current_project:

@@ -40,11 +40,34 @@ const filteredHotspots = computed(() => hotspots.value.filter((item) =>
   (!filter.value || `${item.component_name} ${item.entity_id} ${item.subcase}`.toLowerCase().includes(filter.value.toLowerCase())),
 ))
 
-const menu = [
-  ['overview', '项目概览', '01'], ['run', 'Run 概览', '02'], ['model', '模型信息', '03'],
-  ['mesh', '网格信息', '04'], ['materials', '材料与属性', '05'], ['boundary', '边界条件', '06'],
-  ['subcases', '子工况', '07'], ['hotspots', '结果热点', '08'], ['report', '报告', '09'],
+const menuGroups = [
+  {
+    category: '📌 概览与控制',
+    items: [
+      ['overview', '项目概览', '01', '📊'],
+      ['run', 'Run 概览与 DAG', '02', '⚡'],
+    ]
+  },
+  {
+    category: '🔍 模型与物理场',
+    items: [
+      ['model', '模型信息', '03', '📦'],
+      ['mesh', '网格信息', '04', '🕸'],
+      ['materials', '材料与属性', '05', '🧪'],
+      ['boundary', '边界条件', '06', '⚓'],
+      ['subcases', '子工况', '07', '📋'],
+    ]
+  },
+  {
+    category: '🎯 结果与成果',
+    items: [
+      ['hotspots', '结果热点', '08', '🔥'],
+      ['report', '工程报告', '09', '📄'],
+    ]
+  }
 ]
+
+const menu = menuGroups.flatMap((g) => g.items)
 
 onMounted(async () => {
   await store.loadProject(projectId.value)
@@ -90,7 +113,7 @@ async function loadPage(page: string) {
     }
   } catch (reason) {
     ElMessage.warning(reason instanceof Error ? reason.message : String(reason))
-  } finally { pageLoading.value = false }
+  } fontally: { pageLoading.value = false }
 }
 
 async function controlRun(action: string) {
@@ -174,25 +197,54 @@ function csvDownload() {
 
 function source(kind: string) { return store.project?.sources?.find((item) => item.source_type === kind) }
 function percent(current: number, total: number) { return total ? Math.round(current * 100 / total) : 0 }
+
+function getTaskStatusClass(taskType: string) {
+  const task = store.run?.tasks.find((t) => t.task_type === taskType)
+  return task ? `task-${task.status}` : 'task-pending'
+}
+
+function getTaskStatusText(taskType: string) {
+  const task = store.run?.tasks.find((t) => t.task_type === taskType)
+  if (!task) return '等待中'
+  if (task.status === 'completed') return '✔ 已完成'
+  if (task.status === 'running') return '⚙ 运行中'
+  if (task.status === 'failed') return '✖ 失败'
+  return '⏳ 排队'
+}
 </script>
 
 <template>
   <div class="workbench-shell">
     <aside>
-      <router-link to="/projects" class="brand"><span>CR</span><strong>CAE REPORT</strong></router-link>
+      <router-link to="/projects" class="brand">
+        <span>CR</span>
+        <strong>CAE REPORT</strong>
+      </router-link>
       <div class="project-identity">
-        <small>{{ store.project?.code || '未编号项目' }}</small>
+        <small>{{ store.project?.code || 'PRJ-UNASSIGNED' }}</small>
         <h1>{{ store.project?.name || '加载中…' }}</h1>
         <p>{{ store.project?.analysis_type }} · {{ store.project?.unit_system }}</p>
       </div>
-      <nav aria-label="结果工作台">
-        <button v-for="item in menu" :key="item[0]" :class="{ active: activePage === item[0] }" @click="loadPage(item[0])">
-          <span>{{ item[2] }}</span>{{ item[1] }}
-        </button>
+
+      <nav aria-label="结果工作台" class="nav-groups">
+        <div v-for="group in menuGroups" :key="group.category" class="nav-group">
+          <div class="nav-category">{{ group.category }}</div>
+          <button
+            v-for="item in group.items"
+            :key="item[0]"
+            :class="{ active: activePage === item[0] }"
+            @click="loadPage(item[0])"
+          >
+            <span class="icon">{{ item[3] }}</span>
+            <span class="text">{{ item[1] }}</span>
+            <span class="num">{{ item[2] }}</span>
+          </button>
+        </div>
       </nav>
+
       <footer>
         <div><i :class="{ online: store.connected }"></i>{{ store.connected ? '实时事件已连接' : '事件连接中' }}</div>
-        <p>Server 是唯一数据状态源</p>
+        <p>Server 是唯一 SQLite 状态源</p>
       </footer>
     </aside>
 
@@ -223,6 +275,7 @@ function percent(current: number, total: number) { return total ? Math.round(cur
       </header>
 
       <section v-if="store.error" class="error-panel">{{ store.error }}</section>
+
       <section v-else-if="activePage === 'overview'" class="content overview">
         <div class="metrics six">
           <metric-card label="节点" :value="model.node_count ?? '—'" />
@@ -253,10 +306,117 @@ function percent(current: number, total: number) { return total ? Math.round(cur
       </section>
 
       <section v-else-if="activePage === 'run'" class="content">
-        <div class="metrics four"><metric-card label="总体进度" :value="`${store.run?.progress ?? 0}%`" /><metric-card label="成功" :value="store.run?.tasks.filter((t) => t.status === 'completed').length ?? 0" /><metric-card label="执行中" :value="store.run?.tasks.filter((t) => t.status === 'running').length ?? 0" /><metric-card label="失败" :value="store.run?.tasks.filter((t) => t.status === 'failed').length ?? 0" /></div>
-        <section class="panel"><div class="panel-heading"><h3>任务 DAG 与阶段进度</h3><div class="button-row"><el-button size="small" type="primary" @click="controlRun('start')">启动</el-button><el-button size="small" @click="controlRun('pause')">暂停</el-button><el-button size="small" @click="controlRun('resume')">恢复</el-button><el-button size="small" @click="controlRun('retry-failed')">重试失败项</el-button></div></div>
-          <div class="task-list"><article v-for="task in store.run?.tasks" :key="task.id"><span class="task-state" :class="`task-${task.status}`"></span><div><strong>{{ task.task_type }}</strong><small>{{ task.progress_message || '等待执行' }}</small></div><el-progress :percentage="percent(task.progress_current, task.progress_total)" :status="task.status === 'failed' ? 'exception' : task.status === 'completed' ? 'success' : undefined" /></article></div>
+        <div class="metrics four">
+          <metric-card label="总体进度" :value="`${store.run?.progress ?? 0}%`" />
+          <metric-card label="成功" :value="store.run?.tasks.filter((t) => t.status === 'completed').length ?? 0" />
+          <metric-card label="执行中" :value="store.run?.tasks.filter((t) => t.status === 'running').length ?? 0" />
+          <metric-card label="失败" :value="store.run?.tasks.filter((t) => t.status === 'failed').length ?? 0" />
+        </div>
+
+        <!-- DAG Flow Topology Section -->
+        <section class="panel dag-panel">
+          <div class="panel-heading">
+            <h3>任务依赖拓扑 (DAG Pipeline Flow)</h3>
+            <span>流向依赖关系 · 实时节点监控</span>
+          </div>
+          
+          <div class="dag-graph">
+            <div class="dag-phase">
+              <div class="phase-title">Phase 1: FEM 解析</div>
+              <div class="dag-node" :class="getTaskStatusClass('fem.model_summary')">
+                <span class="node-icon">📦</span>
+                <div class="node-info">
+                  <strong>fem.model_summary</strong>
+                  <small>{{ getTaskStatusText('fem.model_summary') }}</small>
+                </div>
+              </div>
+              <div class="dag-node" :class="getTaskStatusClass('fem.mesh_summary')">
+                <span class="node-icon">🕸</span>
+                <div class="node-info">
+                  <strong>fem.mesh_summary</strong>
+                  <small>{{ getTaskStatusText('fem.mesh_summary') }}</small>
+                </div>
+              </div>
+              <div class="dag-node" :class="getTaskStatusClass('fem.subcases')">
+                <span class="node-icon">📋</span>
+                <div class="node-info">
+                  <strong>fem.subcases</strong>
+                  <small>{{ getTaskStatusText('fem.subcases') }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="dag-arrow">➔</div>
+
+            <div class="dag-phase">
+              <div class="phase-title">Phase 2: H3D & 热点提取</div>
+              <div class="dag-node" :class="getTaskStatusClass('h3d.result_index')">
+                <span class="node-icon">🔍</span>
+                <div class="node-info">
+                  <strong>h3d.result_index</strong>
+                  <small>{{ getTaskStatusText('h3d.result_index') }}</small>
+                </div>
+              </div>
+              <div class="dag-node" :class="getTaskStatusClass('result.stress_hotspots')">
+                <span class="node-icon">🔥</span>
+                <div class="node-info">
+                  <strong>result.stress_hotspots</strong>
+                  <small>{{ getTaskStatusText('result.stress_hotspots') }}</small>
+                </div>
+              </div>
+              <div class="dag-node" :class="getTaskStatusClass('result.displacement_hotspots')">
+                <span class="node-icon">📐</span>
+                <div class="node-info">
+                  <strong>result.displacement_hotspots</strong>
+                  <small>{{ getTaskStatusText('result.displacement_hotspots') }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="dag-arrow">➔</div>
+
+            <div class="dag-phase">
+              <div class="phase-title">Phase 3: 截图与报告</div>
+              <div class="dag-node" :class="getTaskStatusClass('capture.standard_views')">
+                <span class="node-icon">📷</span>
+                <div class="node-info">
+                  <strong>capture.standard_views</strong>
+                  <small>{{ getTaskStatusText('capture.standard_views') }}</small>
+                </div>
+              </div>
+              <div class="dag-node" :class="getTaskStatusClass('report.prepare')">
+                <span class="node-icon">📄</span>
+                <div class="node-info">
+                  <strong>report.prepare</strong>
+                  <small>{{ getTaskStatusText('report.prepare') }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>任务列表与阶段进度</h3>
+            <div class="button-row">
+              <el-button size="small" type="primary" @click="controlRun('start')">启动</el-button>
+              <el-button size="small" @click="controlRun('pause')">暂停</el-button>
+              <el-button size="small" @click="controlRun('resume')">恢复</el-button>
+              <el-button size="small" @click="controlRun('retry-failed')">重试失败项</el-button>
+            </div>
+          </div>
+          <div class="task-list">
+            <article v-for="task in store.run?.tasks" :key="task.id">
+              <span class="task-state" :class="`task-${task.status}`"></span>
+              <div>
+                <strong>{{ task.task_type }}</strong>
+                <small>{{ task.progress_message || '等待执行' }}</small>
+              </div>
+              <el-progress :percentage="percent(task.progress_current, task.progress_total)" :status="task.status === 'failed' ? 'exception' : task.status === 'completed' ? 'success' : undefined" />
+            </article>
+          </div>
+        </section>
+
         <section class="panel"><div class="panel-heading"><h3>输入快照</h3><span>新 Run 不覆盖历史结果</span></div><pre>{{ JSON.stringify(store.run?.input_snapshot, null, 2) }}</pre></section>
       </section>
 
@@ -288,7 +448,7 @@ function percent(current: number, total: number) { return total ? Math.round(cur
       </section>
 
       <section v-else-if="activePage === 'hotspots'" class="content">
-        <section class="panel"><div class="panel-heading hotspot-toolbar"><div><h3>热点审查</h3><span>{{ filteredHotspots.length }} / {{ hotspots.length }}</span></div><div><el-input v-model="filter" placeholder="搜索 component / entity / subcase" clearable style="width:280px" /><el-select v-model="hotspotKind" style="width:130px"><el-option label="全部结果" value="all" /><el-option label="应力" value="stress" /><el-option label="位移" value="displacement" /></el-select><el-select v-model="classification" style="width:140px"><el-option v-for="value in ['all','valid','singularity','contact_singularity','mesh_issue','boundary_issue','ignore','unknown']" :key="value" :label="value" :value="value" /></el-select><el-button @click="csvDownload">导出 CSV</el-button></div></div>
+        <section class="panel"><div class="panel-heading hotspot-toolbar"><div><h3>热点审查</h3><span>{{ filteredHotspots.length }} / {{ hotspots.length }}</span></div><div><el-input v-model="filter" placeholder="搜索 component / entity / subcase" clearable style="width:280px" /><el-select v-model="hotspotKind" style="width:130px"><el-option label="全部结果" value="all" /><el-option label="应力" value="stress" /><el-option label="位移" value="displacement" /></el-select><el-select v-model="classification" style="width:140px"><el-option v-for="value in ['all','valid','singularity','contact_singularity','mesh_issue','boundary_issue','ignore','unknown']" :key="value" :label="value" :value="value" /></el-select><el-button type="primary" plain @click="csvDownload">导出 CSV</el-button></div></div>
           <el-table :data="filteredHotspots" stripe @row-dblclick="openHotspot"><el-table-column prop="rank" label="#" sortable width="65" /><el-table-column prop="result_kind" label="结果" width="100" /><el-table-column prop="subcase" label="子工况" /><el-table-column prop="component_name" label="Component" sortable /><el-table-column label="Entity"><template #default="scope">{{ scope.row.entity_type }} {{ scope.row.entity_id }}</template></el-table-column><el-table-column label="数值" sortable><template #default="scope"><strong>{{ scope.row.value }}</strong> {{ scope.row.unit }}</template></el-table-column><el-table-column prop="classification" label="分类" /><el-table-column label="操作" width="100"><template #default="scope"><el-button link type="primary" @click="openHotspot(scope.row)">审查</el-button></template></el-table-column></el-table>
         </section>
       </section>
@@ -319,18 +479,123 @@ function percent(current: number, total: number) { return total ? Math.round(cur
 </template>
 
 <style scoped>
-.workbench-shell { min-height: 100vh; display: grid; grid-template-columns: 238px 1fr; background: #edf2f5; }
-aside { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; background: #14293b; color: #dce7ed; padding: 22px 14px; overflow: hidden; }
-.brand { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; padding: 0 8px 22px; border-bottom: 1px solid #ffffff18; }.brand span { display: grid; place-items: center; width: 38px; height: 38px; background: #2490a4; border-radius: 8px; font-size: 13px; font-weight: 800; }.brand strong { letter-spacing: .09em; font-size: 14px; }
-.project-identity { padding: 22px 10px 16px; }.project-identity small { color: #70bdca; font-weight: 700; letter-spacing: .08em; }.project-identity h1 { margin: 7px 0; font-size: 17px; line-height: 1.4; color: white; }.project-identity p { margin: 0; color: #91a7b7; font-size: 11px; }
-nav { display: grid; gap: 3px; overflow: auto; } nav button { display: flex; align-items: center; gap: 11px; width: 100%; border: 0; border-radius: 7px; background: transparent; color: #aebfca; text-align: left; padding: 10px 11px; cursor: pointer; } nav button span { color: #5f7d91; font-family: Consolas, monospace; font-size: 11px; } nav button:hover { background: #ffffff0a; color: white; } nav button.active { background: #20879c; color: white; } nav button.active span { color: #bce8ef; }
-aside footer { margin-top: auto; padding: 15px 9px 0; border-top: 1px solid #ffffff18; color: #8da2b2; font-size: 11px; } aside footer div { display: flex; align-items: center; gap: 7px; } aside footer i { width: 7px; height: 7px; border-radius: 50%; background: #b37c44; } aside footer i.online { background: #4bc88a; box-shadow: 0 0 8px #4bc88a; }
-main { min-width: 0; }.topbar { height: 86px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: white; border-bottom: 1px solid #d8e1e7; }.topbar p { margin: 0 0 3px; color: #21869b; font-size: 11px; font-weight: 700; letter-spacing: .1em; }.topbar h2 { margin: 0; color: #173147; font-size: 22px; }.run-state { display: flex; align-items: center; gap: 14px; }.run-pill { padding: 6px 10px; border-radius: 999px; background: #e7f3ed; color: #207250; font-size: 11px; text-transform: uppercase; font-weight: 700; }
-.content { display: grid; gap: 16px; padding: 22px 28px 44px; }.metrics { display: grid; gap: 12px; }.metrics.six { grid-template-columns: repeat(6, 1fr); }.metrics.four { grid-template-columns: repeat(4, 1fr); }.grid { display: grid; gap: 16px; }.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.panel { background: white; border: 1px solid #d9e3e9; border-radius: 10px; padding: 17px; box-shadow: 0 3px 12px rgba(34, 60, 77, .035); }.panel-heading { display: flex; align-items: center; justify-content: space-between; min-height: 30px; margin-bottom: 12px; }.panel-heading h3 { margin: 0; color: #1a354a; font-size: 15px; }.panel-heading span { color: #80919e; font-size: 11px; }.source-panel article { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #edf1f4; }.source-panel article > strong { color: #176b87; font-size: 12px; }.source-panel article div { min-width: 0; }.source-panel article b, .source-panel article small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.source-panel article b { font-size: 13px; }.source-panel article small { color: #82939f; font-size: 10px; }.source-panel article em { font-style: normal; font-size: 10px; color: #2d805d; }.run-summary { display: flex; align-items: baseline; gap: 15px; padding: 20px 0; }.run-summary strong { font-size: 44px; color: #176b87; }.run-summary p { color: #778994; }.button-row { display: flex; gap: 5px; }.warning-panel { min-height: 130px; }.error-panel { margin: 30px; padding: 20px; border-radius: 8px; background: #fff0f0; color: #a33; }
-.task-list { display: grid; }.task-list article { display: grid; grid-template-columns: 14px minmax(220px, 1fr) minmax(280px, 2fr); gap: 12px; align-items: center; padding: 12px 4px; border-top: 1px solid #edf1f3; }.task-list article div strong, .task-list article div small { display: block; }.task-list article div strong { color: #294458; font-size: 13px; }.task-list article div small { color: #8a9aa5; font-size: 11px; }.task-state { width: 9px; height: 9px; border-radius: 50%; background: #b7c2c9; }.task-running { background: #1988a0; box-shadow: 0 0 0 4px #1988a020; }.task-completed { background: #37a371; }.task-failed { background: #ce5555; } pre { max-height: 310px; overflow: auto; padding: 14px; background: #f4f7f9; color: #365064; border-radius: 7px; font-family: Consolas, monospace; font-size: 11px; }
-.result-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }.result-types article { border: 1px solid #dbe5ea; border-radius: 8px; padding: 15px; }.result-types strong { color: #173b50; }.result-types p { color: #6f8492; }.result-types span { color: #21869b; font-size: 12px; }.hotspot-toolbar > div { display: flex; align-items: center; gap: 8px; }.hotspot-toolbar > div:first-child { display: block; }
-.dialog-title { display: flex; justify-content: space-between; padding-right: 22px; }.dialog-title small { color: #27869a; }.dialog-title h3 { margin: 4px 0 0; }.dialog-title > strong { color: #bd5d39; font-size: 24px; }.hotspot-detail { display: grid; gap: 14px; }
-.report-workspace { padding: 16px 20px 30px; }.report-toolbar { display: flex; justify-content: space-between; }.report-layout { display: grid; grid-template-columns: 210px minmax(680px, 1fr); gap: 16px; min-height: calc(100vh - 170px); }.slide-list { display: flex; flex-direction: column; gap: 7px; overflow: auto; }.slide-list button { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 7px; border: 1px solid #d4dfe5; border-radius: 7px; background: white; padding: 7px; cursor: grab; }.slide-list button.active { border-color: #1d879c; box-shadow: 0 0 0 2px #1d879c24; }.slide-list button > span { color: #6f818e; font-size: 11px; }.slide-mini { aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; background: #f7f9fb; padding: 8px; text-align: left; overflow: hidden; }.slide-mini strong { color: #244055; font-size: 10px; }.slide-mini small { color: #86959f; font-size: 8px; }.slide-editor { display: grid; align-content: start; gap: 12px; }.slide-canvas { position: relative; width: min(100%, 1066px); aspect-ratio: 16 / 9; margin: 0 auto; background: white; box-shadow: 0 12px 30px #1a34471a; overflow: hidden; }.slide-title { position: absolute; top: 4.3%; left: 5%; width: 90%; border: 0; outline: 0; background: transparent; color: #173248; font-size: clamp(20px, 2.2vw, 32px); font-weight: 700; }.slide-element { position: absolute; overflow: hidden; }.slide-element textarea { width: 100%; height: 100%; resize: none; border: 1px dashed transparent; outline: none; background: transparent; color: #304c60; font-size: clamp(11px, 1.2vw, 18px); }.slide-element textarea:focus { border-color: #21869b; }.slide-element img { width: 100%; height: 100%; object-fit: contain; }.slide-number { position: absolute; right: 2%; bottom: 2%; color: #8c99a3; font-size: 10px; }
+.workbench-shell { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; background: #f1f5f9; }
+aside { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; background: #0f172a; color: #cbd5e1; padding: 20px 14px; overflow: hidden; }
+.brand { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; padding: 0 8px 18px; border-bottom: 1px solid #ffffff18; }
+.brand span { display: grid; place-items: center; width: 36px; height: 36px; background: #0284c7; border-radius: 8px; font-size: 13px; font-weight: 800; }
+.brand strong { letter-spacing: .09em; font-size: 14px; }
+.project-identity { padding: 16px 8px 12px; }
+.project-identity small { color: #38bdf8; font-weight: 700; letter-spacing: .08em; font-family: var(--font-mono); }
+.project-identity h1 { margin: 6px 0; font-size: 16px; line-height: 1.35; color: white; }
+.project-identity p { margin: 0; color: #94a3b8; font-size: 11px; }
+
+.nav-groups { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; padding-right: 2px; }
+.nav-category { font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 6px 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.nav-groups button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-radius: 8px; background: transparent; color: #94a3b8; text-align: left; padding: 9px 10px; cursor: pointer; transition: all 0.15s ease; }
+.nav-groups button .icon { font-size: 14px; }
+.nav-groups button .text { font-size: 13px; flex: 1; }
+.nav-groups button .num { color: #475569; font-family: var(--font-mono); font-size: 10px; }
+.nav-groups button:hover { background: #ffffff0e; color: white; }
+.nav-groups button.active { background: #0284c7; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+.nav-groups button.active .num { color: #e0f2fe; }
+
+aside footer { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid #ffffff18; color: #64748b; font-size: 11px; }
+aside footer div { display: flex; align-items: center; gap: 7px; }
+aside footer i { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
+aside footer i.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+main { min-width: 0; }
+.topbar { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: white; border-bottom: 1px solid #e2e8f0; }
+.topbar p { margin: 0 0 2px; color: #0284c7; font-size: 11px; font-weight: 700; letter-spacing: .1em; font-family: var(--font-mono); }
+.topbar h2 { margin: 0; color: #0f172a; font-size: 22px; font-weight: 700; }
+.run-state { display: flex; align-items: center; gap: 14px; }
+.run-pill { padding: 5px 12px; border-radius: 999px; background: #e0f2fe; color: #0284c7; font-size: 11px; text-transform: uppercase; font-weight: 700; }
+
+.content { display: grid; gap: 16px; padding: 22px 28px 44px; }
+.metrics { display: grid; gap: 12px; }
+.metrics.six { grid-template-columns: repeat(6, 1fr); }
+.metrics.four { grid-template-columns: repeat(4, 1fr); }
+.grid { display: grid; gap: 16px; }
+.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* DAG Topology Graph */
+.dag-panel { background: white; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+.dag-graph { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; overflow-x: auto; }
+.dag-phase { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+.phase-title { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; margin-bottom: 2px; }
+.dag-node { display: flex; align-items: center; gap: 10px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; transition: all 0.2s ease; }
+.dag-node.task-completed { border-color: #10b981; background: #f0fdf4; }
+.dag-node.task-running { border-color: #0284c7; background: #f0f9ff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+.dag-node.task-failed { border-color: #ef4444; background: #fef2f2; }
+.dag-node.task-pending { opacity: 0.6; }
+.node-icon { font-size: 16px; }
+.node-info strong { display: block; font-size: 12px; color: #0f172a; }
+.node-info small { font-size: 10px; color: #64748b; }
+.dag-arrow { color: #94a3b8; font-size: 18px; font-weight: bold; }
+
+.panel { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; box-shadow: var(--shadow-sm); }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; min-height: 30px; margin-bottom: 14px; }
+.panel-heading h3 { margin: 0; color: #0f172a; font-size: 16px; font-weight: 600; }
+.panel-heading span { color: #64748b; font-size: 12px; }
+.source-panel article { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #f1f5f9; }
+.source-panel article > strong { color: #0284c7; font-size: 12px; }
+.source-panel article div { min-width: 0; }
+.source-panel article b, .source-panel article small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.source-panel article b { font-size: 13px; }
+.source-panel article small { color: #64748b; font-size: 10px; font-family: var(--font-mono); }
+.source-panel article em { font-style: normal; font-size: 10px; color: #059669; }
+.run-summary { display: flex; align-items: baseline; gap: 15px; padding: 20px 0; }
+.run-summary strong { font-size: 44px; color: #0284c7; font-family: var(--font-mono); }
+.run-summary p { color: #64748b; }
+.button-row { display: flex; gap: 6px; }
+.warning-panel { min-height: 130px; }
+.error-panel { margin: 30px; padding: 20px; border-radius: 8px; background: #fef2f2; color: #b91c1c; }
+
+.task-list { display: grid; }
+.task-list article { display: grid; grid-template-columns: 14px minmax(220px, 1fr) minmax(280px, 2fr); gap: 12px; align-items: center; padding: 12px 4px; border-top: 1px solid #f1f5f9; }
+.task-list article div strong, .task-list article div small { display: block; }
+.task-list article div strong { color: #1e293b; font-size: 13px; }
+.task-list article div small { color: #64748b; font-size: 11px; }
+.task-state { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; }
+.task-running { background: #0284c7; box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2); }
+.task-completed { background: #10b981; }
+.task-failed { background: #ef4444; }
+
+pre { max-height: 310px; overflow: auto; padding: 14px; background: #f8fafc; color: #334155; border-radius: 7px; border: 1px solid #e2e8f0; font-family: var(--font-mono); font-size: 11px; }
+
+.result-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+.result-types article { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
+.result-types strong { color: #0f172a; }
+.result-types p { color: #64748b; }
+.result-types span { color: #0284c7; font-size: 12px; font-family: var(--font-mono); }
+.hotspot-toolbar > div { display: flex; align-items: center; gap: 8px; }
+.hotspot-toolbar > div:first-child { display: block; }
+
+.dialog-title { display: flex; justify-content: space-between; padding-right: 22px; }
+.dialog-title small { color: #0284c7; }
+.dialog-title h3 { margin: 4px 0 0; }
+.dialog-title > strong { color: #ea580c; font-size: 24px; font-family: var(--font-mono); }
+.hotspot-detail { display: grid; gap: 14px; }
+
+.report-workspace { padding: 16px 20px 30px; }
+.report-toolbar { display: flex; justify-content: space-between; margin-bottom: 12px; }
+.report-layout { display: grid; grid-template-columns: 210px minmax(680px, 1fr); gap: 16px; min-height: calc(100vh - 170px); }
+.slide-list { display: flex; flex-direction: column; gap: 7px; overflow: auto; }
+.slide-list button { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 7px; border: 1px solid #cbd5e1; border-radius: 7px; background: white; padding: 7px; cursor: grab; transition: all 0.15s ease; }
+.slide-list button.active { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+.slide-list button > span { color: #64748b; font-size: 11px; }
+.slide-mini { aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; background: #f8fafc; padding: 8px; text-align: left; overflow: hidden; border: 1px dashed #cbd5e1; }
+.slide-mini strong { color: #0f172a; font-size: 10px; }
+.slide-mini small { color: #94a3b8; font-size: 8px; }
+.slide-editor { display: grid; align-content: start; gap: 12px; }
+.slide-canvas { position: relative; width: min(100%, 1066px); aspect-ratio: 16 / 9; margin: 0 auto; background: white; box-shadow: var(--shadow-lg); overflow: hidden; border-radius: 4px; border: 1px solid #cbd5e1; }
+.slide-title { position: absolute; top: 4.3%; left: 5%; width: 90%; border: 0; outline: 0; background: transparent; color: #0f172a; font-size: clamp(20px, 2.2vw, 32px); font-weight: 700; }
+.slide-element { position: absolute; overflow: hidden; }
+.slide-element textarea { width: 100%; height: 100%; resize: none; border: 1px dashed transparent; outline: none; background: transparent; color: #334155; font-size: clamp(11px, 1.2vw, 18px); }
+.slide-element textarea:focus { border-color: #0284c7; }
+.slide-element img { width: 100%; height: 100%; object-fit: contain; }
+.slide-number { position: absolute; right: 2%; bottom: 2%; color: #94a3b8; font-size: 10px; font-family: var(--font-mono); }
+
 @media (max-width: 1280px) { .metrics.six { grid-template-columns: repeat(3, 1fr); } }
 </style>
+

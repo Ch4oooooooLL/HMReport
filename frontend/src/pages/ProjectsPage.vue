@@ -1,50 +1,283 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useWorkbenchStore } from '../stores/workbench'
 
 const store = useWorkbenchStore()
+const searchQuery = ref('')
+const selectedStatus = ref('all')
+
 onMounted(() => store.loadProjects())
+
+const filteredProjects = computed(() => {
+  return store.projects.filter((p) => {
+    const matchesSearch = !searchQuery.value ||
+      p.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (p.code && p.code.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+      (p.solver && p.solver.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    
+    const matchesStatus = selectedStatus.value === 'all' || p.status === selectedStatus.value
+    return matchesSearch && matchesStatus
+  })
+})
 </script>
 
 <template>
   <main class="projects-page">
-    <header>
-      <div class="brand-mark">CR</div>
-      <div>
+    <header class="brand-header">
+      <div class="brand-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <div class="brand-info">
         <h1>CAE 结果分析与报告工作台</h1>
-        <p>本地项目、结果审查与工程报告</p>
+        <p>本地高效分析 · 自动热点提取 · PPT 工程报告生成</p>
       </div>
     </header>
+
     <section class="project-panel">
-      <div class="panel-title">
-        <div><span>最近项目</span><small>{{ store.projects.length }} 个本地项目</small></div>
-        <el-tag type="success" effect="plain">离线可用</el-tag>
+      <div class="panel-header">
+        <div class="header-left">
+          <h2>项目画廊</h2>
+          <span class="count-badge">{{ filteredProjects.length }} / {{ store.projects.length }} 个工程项目</span>
+        </div>
+        
+        <div class="header-actions">
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索项目名称、编号或求解器..."
+            clearable
+            style="width: 280px"
+          >
+            <template #prefix>🔍</template>
+          </el-input>
+          
+          <el-radio-group v-model="selectedStatus" size="default">
+            <el-radio-button label="all">全部</el-radio-button>
+            <el-radio-button label="completed">已完成</el-radio-button>
+            <el-radio-button label="running">进行中</el-radio-button>
+            <el-radio-button label="draft">草稿</el-radio-button>
+          </el-radio-group>
+          
+          <el-tag type="success" effect="light" class="offline-tag">🟢 离线可用</el-tag>
+        </div>
       </div>
-      <div v-if="store.projects.length" class="project-grid">
-        <router-link v-for="project in store.projects" :key="project.id" :to="`/projects/${project.id}`" class="project-card">
-          <div class="project-code">{{ project.code || '未编号' }}</div>
-          <h2>{{ project.name }}</h2>
-          <p>{{ project.analysis_type }} · {{ project.solver }} · {{ project.unit_system }}</p>
-          <footer><span :class="`status status-${project.status}`">{{ project.status }}</span><strong>进入工作台 →</strong></footer>
+
+      <div v-if="filteredProjects.length" class="project-grid">
+        <router-link
+          v-for="project in filteredProjects"
+          :key="project.id"
+          :to="`/projects/${project.id}`"
+          class="project-card"
+        >
+          <div class="card-top">
+            <span class="project-code">{{ project.code || 'PRJ-UNASSIGNED' }}</span>
+            <span :class="`status-pill status-${project.status}`">{{ project.status }}</span>
+          </div>
+
+          <h3 class="project-title">{{ project.name }}</h3>
+          
+          <div class="project-meta">
+            <span class="meta-item">🛠 {{ project.solver || 'OptiStruct' }}</span>
+            <span class="meta-item">📏 {{ project.unit_system || 'mm-N-MPa' }}</span>
+            <span class="meta-item">📊 {{ project.analysis_type || '线性静力学' }}</span>
+          </div>
+
+          <div class="card-footer">
+            <span class="enter-btn">进入工作台 →</span>
+          </div>
         </router-link>
       </div>
-      <el-empty v-else description="请在桌面项目管理器中创建项目" />
+
+      <el-empty v-else description="未找到符合条件的项目。请在桌面应用中创建新项目。" />
     </section>
   </main>
 </template>
 
 <style scoped>
-.projects-page { min-height: 100vh; background: #edf2f5; padding: 48px max(32px, calc((100vw - 1180px) / 2)); }
-header { display: flex; align-items: center; gap: 18px; margin-bottom: 36px; }
-.brand-mark { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 12px; background: #176b87; color: white; font-weight: 700; letter-spacing: .08em; box-shadow: 0 10px 24px #176b8730; }
-h1 { margin: 0; font-size: 28px; color: #173248; } header p { margin: 5px 0 0; color: #6b7f8e; }
-.project-panel { background: white; border: 1px solid #d8e1e7; border-radius: 14px; padding: 24px; box-shadow: 0 12px 40px rgba(34, 59, 76, .07); }
-.panel-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }.panel-title span { display: block; font-size: 19px; font-weight: 600; color: #173248; }.panel-title small { color: #82929e; }
-.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-.project-card { display: block; padding: 20px; border: 1px solid #dbe4e9; border-radius: 10px; color: inherit; text-decoration: none; transition: .18s ease; }
-.project-card:hover { transform: translateY(-2px); border-color: #4a99a9; box-shadow: 0 10px 22px #274d6514; }
-.project-code { color: #26859a; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.project-card h2 { margin: 9px 0; color: #20384b; font-size: 19px; }.project-card p { min-height: 38px; color: #738490; font-size: 13px; }
-.project-card footer { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; }.project-card footer strong { color: #176b87; font-size: 13px; }
-.status { padding: 4px 8px; border-radius: 999px; background: #e9f4ef; color: #287657; font-size: 11px; }
+.projects-page {
+  min-height: 100vh;
+  background: var(--bg-app);
+  padding: 40px max(32px, calc((100vw - 1280px) / 2));
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.brand-logo {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.25);
+}
+
+.brand-info h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.brand-info p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.project-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.header-left h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.count-badge {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.offline-tag {
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 18px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.project-code {
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.status-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+.status-completed { background: #ecfdf5; color: #059669; }
+.status-running { background: #e0f2fe; color: #0284c7; }
+.status-failed { background: #fef2f2; color: #dc2626; }
+.status-draft { background: #f8fafc; color: #64748b; }
+
+.project-title {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.meta-item {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.enter-btn {
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.project-card:hover .enter-btn {
+  color: var(--primary-hover);
+}
 </style>
+
 

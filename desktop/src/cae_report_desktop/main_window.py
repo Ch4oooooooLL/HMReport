@@ -386,7 +386,11 @@ class MainWindow(QMainWindow):
             self.current_run = self.client.post(f"/api/v1/runs/{self.current_run['id']}/{action}")
             self._fill_run(self.current_run)
         except Exception as exc:
-            QMessageBox.warning(self, "操作失败", str(exc))
+            err_text = str(exc)
+            if any(k in err_text for k in ("运行中", "排队", "已完成")):
+                QMessageBox.information(self, "运行提示", err_text)
+            else:
+                QMessageBox.warning(self, "操作提示", err_text)
 
     def rerun_project(self) -> None:
         if self.client is None or self.current_project is None:

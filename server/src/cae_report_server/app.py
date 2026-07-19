@@ -212,7 +212,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             result = service.start_run(run_id)
         except ValueError as exc:
-            raise HTTPException(409, str(exc)) from exc
+            detail = str(exc).split(":", 1)[1].strip() if ":" in str(exc) else str(exc)
+            raise HTTPException(409, detail) from exc
         await events.publish("run.started", {"run_id": run_id})
         return result
 

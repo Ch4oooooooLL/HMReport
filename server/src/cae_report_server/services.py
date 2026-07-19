@@ -443,7 +443,14 @@ class WorkbenchService:
     def start_run(self, run_id: str) -> dict[str, Any]:
         run = self.get_run(run_id)
         if run["status"] not in {"draft", "paused", "interrupted", "failed"}:
-            raise ValueError(f"run cannot start from {run['status']}")
+            if run["status"] == "running":
+                raise ValueError("RUN_ALREADY_RUNNING: 当前 Run 正在运行中，无需重复启动")
+            elif run["status"] == "queued":
+                raise ValueError("RUN_ALREADY_QUEUED: 当前 Run 已在排队等待中，无需重复启动")
+            elif run["status"] == "completed":
+                raise ValueError("RUN_ALREADY_COMPLETED: 当前 Run 已完成分析。如需重新运行，请点击『重新运行』按钮")
+            else:
+                raise ValueError(f"RUN_INVALID_STATUS: 当前 Run 状态为 {run['status']}，无法启动")
         sources = self.db.all(
             """SELECT s.* FROM result_sources s JOIN analysis_runs r ON r.project_id=s.project_id
                WHERE r.id=? AND s.source_type IN ('fem','h3d')""",
@@ -453,9 +460,9 @@ class WorkbenchService:
         for source in sources:
             current = verify_source(Path(source["absolute_path"]), source["source_type"])
             if current["availability"] != "available":
-                raise ValueError("SOURCE_MISSING")
+                raise ValueError("SOURCE_MISSING: 依赖的 FEM/H3D 源文件丢失或无法读取，无法启动分析")
             if current["fingerprint"] != snapshot[source["source_type"]]["fingerprint"]:
-                raise ValueError("SOURCE_CHANGED")
+                raise ValueError("SOURCE_CHANGED: 原始 FEM/H3D 文件指纹发生变更，请创建新 Run 重新运行")
         self.db.execute(
             "UPDATE analysis_runs SET status='queued',started_at=COALESCE(started_at,?),pause_requested=0,cancel_requested=0 WHERE id=?",
             (now(), run_id),

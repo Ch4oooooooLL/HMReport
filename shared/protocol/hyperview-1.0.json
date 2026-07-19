@@ -1,0 +1,19 @@
+{
+  "protocol_version": "1.0",
+  "transport": "TCP JSON Lines UTF-8",
+  "commands": [
+    "session.ping",
+    "session.capabilities",
+    "source.open",
+    "source.status",
+    "source.index",
+    "view.apply",
+    "view.read",
+    "capture.execute",
+    "view.restore",
+    "session.shutdown"
+  ],
+  "forbidden": ["tcl.eval", "shell.exec", "file.delete"],
+  "max_message_bytes": 1048576
+}
+

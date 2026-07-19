@@ -1,0 +1,1631 @@
+ Program execution started at Sun Jul 19 13:13:29 2026    
+	process id = 1784
+ Command line arguments:
+ optistruct_feature_model.fem
+ -aif
+  
+
+TIME SPENT IN MODULE :    READ;  CPU=       0.02;  WALL=      0.01
+
+
+START RUNNING MODULE :  PREPR1 ...
+
+TIME SPENT IN MODULE :  PREPR1;  CPU=       0.00;  WALL=      0.00
+
+
+START RUNNING MODULE :  DESIGN ...
+
+TIME SPENT IN MODULE :  DESIGN;  CPU=       0.00;  WALL=      0.00
+
+
+START RUNNING MODULE :  PREPRO ...
+
+   Start running section :  PRDMGR ...
+
+   Time spent in section :  PRDMGR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRROTD ...
+
+   Time spent in section :  PRROTD;  CPU=       0.23;  WALL=      0.00
+
+
+   Start running section :  PRP2DR ...
+
+   Time spent in section :  PRP2DR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPACO ...
+
+   Time spent in section :  PRPACO;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPFT1 ...
+
+   Time spent in section :  PRPFT1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRDMIG ...
+
+   Time spent in section :  PRDMIG;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : PRDMIG2 ...
+
+   Time spent in section : PRDMIG2;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPDDM ...
+
+   Time spent in section :  PRPDDM;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPROF ...
+
+   Time spent in section :  PRPROF;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPFRF ...
+
+   Time spent in section :  PRPFRF;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRP3DR ...
+
+   Time spent in section :  PRP3DR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRDPPD ...
+
+   Time spent in section :  PRDPPD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PREPOUT0 ...
+
+   Time spent in section :PREPOUT0;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : PREPOUT ...
+
+   Time spent in section : PREPOUT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTSET ...
+
+   Time spent in section :PROUTSET;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTDYN ...
+
+   Time spent in section :PROUTDYN;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTBAR ...
+
+   Time spent in section :PROUTBAR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTDST ...
+
+   Time spent in section :PROUTDST;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTSTP ...
+
+   Time spent in section :PROUTSTP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTPLY ...
+
+   Time spent in section :PROUTPLY;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :PROUTEND ...
+
+   Time spent in section :PROUTEND;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRMISD ...
+
+   Time spent in section :  PRMISD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRP4DR ...
+
+   Time spent in section :  PRP4DR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PROPT1 ...
+
+   Time spent in section :  PROPT1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRMIS2 ...
+
+   Time spent in section :  PRMIS2;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPSL4 ...
+
+   Time spent in section :  PRPSL4;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPMI1 ...
+
+   Time spent in section :  PRPMI1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPFT3 ...
+
+   Time spent in section :  PRPFT3;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPEST ...
+
+   Time spent in section :  PRPEST;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPMI2 ...
+
+   Time spent in section :  PRPMI2;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPMMO ...
+
+   Time spent in section :  PRPMMO;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPMI3 ...
+
+   Time spent in section :  PRPMI3;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPGPS ...
+
+   Time spent in section :  PRPGPS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPDSK ...
+
+   Time spent in section :  PRPDSK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPSUM ...
+
+   Time spent in section :  PRPSUM;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  PRPMI4 ...
+
+   Time spent in section :  PRPMI4;  CPU=       0.00;  WALL=      0.00
+
+
+TIME SPENT IN MODULE :  PREPRO;  CPU=       0.23;  WALL=      0.88
+
+
+ITERATION   0
+
+START RUNNING MODULE : CHECKEL ...
+
+TIME SPENT IN MODULE : CHECKEL;  CPU=       0.00;  WALL=      0.00
+
+
+START RUNNING MODULE :  SOLVER ...
+
+   Start running section :  PRASMB ...
+
+   Time spent in section :  PRASMB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SPASMB ...
+
+   Time spent in section :  SPASMB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : INRTRLF ...
+
+   Time spent in section : INRTRLF;  CPU=       0.00;  WALL=      0.00
+
+
+   Solving subcase          1
+
+   Solving subcase         -6
+
+   Start running section : NLDRVS0 ...
+
+   Time spent in section : NLDRVS0;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : NLDRVS1 ...
+
+   Time spent in section : NLDRVS1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : NLDRVS2 ...
+
+   Time spent in section : NLDRVS2;  CPU=       0.00;  WALL=      0.00
+
+
+   Solving subcase          5
+
+   Start running section :NLSLVINI ...
+
+   Time spent in section :NLSLVINI;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :NLPRPBCS ...
+
+      MUMPS solver is activated for this subcase.
+
+   Time spent in section :NLPRPBCS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  NLSTEP ...
+
+   Time spent in section :  NLSTEP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+      MUMPS is running with   1 processes    1 threads per process in-core mode. 
+      matrix ordering scheme   5   is used.
+      operations during elimination (estim)                              : 6.69610E+04
+      total memory in MBYTES for in-core factorization (estim)               :       1
+      total memory in MBYTES for out-of-core factorization (estim)           :       1
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.05;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.11;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CRESS2S ...
+
+   Time spent in section : CRESS2S;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  NLSTEP ...
+
+   Time spent in section :  NLSTEP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CRESS2S ...
+
+   Time spent in section : CRESS2S;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  NLSTEP ...
+
+   Time spent in section :  NLSTEP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CRESS2S ...
+
+   Time spent in section : CRESS2S;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  NLSTEP ...
+
+   Time spent in section :  NLSTEP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CRESS2S ...
+
+   Time spent in section : CRESS2S;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  NLSTEP ...
+
+   Time spent in section :  NLSTEP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  BLDMX1 ...
+
+   Time spent in section :  BLDMX1;  CPU=       0.16;  WALL=      0.00
+
+
+   Start running section :  BLDMTX ...
+
+   Time spent in section :  BLDMTX;  CPU=       0.03;  WALL=      0.00
+
+
+   Start running section :  GTDIAK ...
+
+   Time spent in section :  GTDIAK;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  FCTRIZ ...
+
+   Time spent in section :  FCTRIZ;  CPU=       0.02;  WALL=      0.00
+
+
+   Start running section :  BLDRHS ...
+
+   Time spent in section :  BLDRHS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  SOLRHS ...
+
+   Time spent in section :  SOLRHS;  CPU=       0.02;  WALL=      0.00
+
+
+   Start running section :RESIDUAL ...
+
+   Time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CRESS2S ...
+
+   Time spent in section : CRESS2S;  CPU=       0.02;  WALL=      0.00
+
+
+   Start running section :NLSLVEND ...
+
+   Time spent in section :NLSLVEND;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : NLDRVS3 ...
+
+   Time spent in section : NLDRVS3;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : NLDRVS4 ...
+
+   Time spent in section : NLDRVS4;  CPU=       0.00;  WALL=      0.00
+
+
+   Solving subcase          1
+
+   Solving subcase         -6
+
+   Start running section :EIGSLVPR ...
+
+   Solving subcase          4
+
+   Time spent in section :EIGSLVPR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :AMLSPRP1 ...
+
+   Time spent in section :AMLSPRP1;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :AMLSPRP2 ...
+
+   Time spent in section :AMLSPRP2;  CPU=       0.00;  WALL=      0.01
+
+
+   Start running section :AMLSPRP3 ...
+
+   Time spent in section :AMLSPRP3;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :AMLSPRP4 ...
+
+   Time spent in section :AMLSPRP4;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :EIGINI_X ...
+
+   Time spent in section :EIGINI_X;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :EIGINP_X ...
+
+   Time spent in section :EIGINP_X;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :SOLEIG_X ...
+
+   Time spent in section :SOLEIG_X;  CPU=       0.23;  WALL=      0.00
+
+
+   Start running section :  GETEIG ...
+
+   Time spent in section :  GETEIG;  CPU=       0.00;  WALL=      0.00
+
+
+   Solving subcase          1
+
+   Start running section :  MPCPRJ ...
+
+   Time spent in section :  MPCPRJ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  REDSLV ...
+
+   Time spent in section :  REDSLV;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  MPCRCV ...
+
+   Time spent in section :  MPCRCV;  CPU=       0.00;  WALL=      0.00
+
+
+   Solving subcase         -6
+
+   Start running section :  MPCPRJ ...
+
+   Time spent in section :  MPCPRJ;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  REDSLV ...
+
+   Time spent in section :  REDSLV;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  MPCRCV ...
+
+   Time spent in section :  MPCRCV;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : MDPINIT ...
+
+   Time spent in section : MDPINIT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : MDPGRAM ...
+
+   Start running section : MDPGRAM ...
+
+   Time spent in section : MDPGRAM;  CPU=       0.00;  WALL=      0.00
+
+
+   Time spent in section : MDPGRAM;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : MDPRD_a ...
+
+   Time spent in section : MDPRD_a;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : MDPRL_a ...
+
+   Time spent in section : MDPRL_a;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : MDLREAD ...
+
+   Time spent in section : MDLREAD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : KMGDAMP ...
+
+   Time spent in section : KMGDAMP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAFACT ...
+
+   Time spent in section : ZLAFACT;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLARLOD ...
+
+   Time spent in section : ZLARLOD;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  ZLASUB ...
+
+   Time spent in section :  ZLASUB;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : ZLAWRDU ...
+
+   Time spent in section : ZLAWRDU;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : CDSPEXP ...
+
+   Time spent in section : CDSPEXP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  STRENR ...
+
+   Time spent in section :  STRENR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  KINENR ...
+
+   Time spent in section :  KINENR;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  OBJFUN ...
+
+   Time spent in section :  OBJFUN;  CPU=       0.00;  WALL=      0.00
+
+
+TIME SPENT IN MODULE :  SOLVER;  CPU=       0.62;  WALL=      0.04
+
+
+START RUNNING MODULE :  STRESS ...
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 2 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 2 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 2 times.
+ INFORMATION: DATASET "ipropsol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 2 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 2 times.
+ INFORMATION: DATASET "ipropsol" was opened 2 times.
+ INFORMATION: DATASET "gpssol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 3 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 2 times.
+ INFORMATION: DATASET "ipropsol" was opened 2 times.
+ INFORMATION: DATASET "gpssol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 3 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 3 times.
+ INFORMATION: DATASET "ipropsol" was opened 2 times.
+ INFORMATION: DATASET "gpssol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 3 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 3 times.
+ INFORMATION: DATASET "ipropsol" was opened 3 times.
+ INFORMATION: DATASET "gpssol" was opened 2 times.
+ INFORMATION: DATASET "sldcnr" was opened 2 times.
+ INFORMATION: DATASET "igpssoldati" was opened 3 times.
+ INFORMATION: DATASET "ipro4strsol" was opened 3 times.
+ INFORMATION: DATASET "ipropsol" was opened 3 times.
+ INFORMATION: DATASET "gpssol" was opened 3 times.
+
+   Start running section : GPSSTIC ...
+
+   Time spent in section : GPSSTIC;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : GPSSEIG ...
+
+   Time spent in section : GPSSEIG;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :GPSSDFRF ...
+
+   Time spent in section :GPSSDFRF;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : GPSMFRF ...
+
+   Time spent in section : GPSMFRF;  CPU=       0.05;  WALL=      0.00
+
+
+   Start running section : GPSSCMS ...
+
+   Time spent in section : GPSSCMS;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :GPSSTRAN ...
+
+   Time spent in section :GPSSTRAN;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : GPSDUNI ...
+
+   Time spent in section : GPSDUNI;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :  GPSCSM ...
+
+   Time spent in section :  GPSCSM;  CPU=       0.00;  WALL=      0.00
+
+
+TIME SPENT IN MODULE :  STRESS;  CPU=       0.05;  WALL=      0.01
+
+
+START RUNNING MODULE : ACPOSTP ...
+
+   Start running section : ACPVPOP ...
+
+   Time spent in section : ACPVPOP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :   CMMAP ...
+
+   Time spent in section :   CMMAP;  CPU=       0.02;  WALL=      0.00
+
+
+   Start running section :   CMCSV ...
+
+   Time spent in section :   CMCSV;  CPU=       0.03;  WALL=      0.00
+
+
+TIME SPENT IN MODULE : ACPOSTP;  CPU=       0.09;  WALL=      0.00
+
+
+START RUNNING MODULE :  RESULT ...
+
+TIME SPENT IN MODULE :  RESULT;  CPU=       0.00;  WALL=      0.00
+
+
+START RUNNING MODULE :CONVERGE ...
+
+TIME SPENT IN MODULE :CONVERGE;  CPU=       0.03;  WALL=      0.00
+
+
+START RUNNING MODULE :   PRINT ...
+
+TIME SPENT IN MODULE :   PRINT;  CPU=       0.00;  WALL=      0.00
+
+
+START RUNNING MODULE : RESULTS ...
+
+   Start running section : RESPREP ...
+
+   Time spent in section : RESPREP;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section : RESMEMO ...
+
+   Time spent in section : RESMEMO;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :RESREADY ...
+
+   Time spent in section :RESREADY;  CPU=       0.00;  WALL=      0.00
+
+
+   Start running section :     H3D ...
+
+   Time spent in section :     H3D;  CPU=       0.03;  WALL=      0.04
+
+
+   Start running section :    MISC ...
+
+   Time spent in section :    MISC;  CPU=       0.00;  WALL=      0.00
+
+  
+ ANALYSIS COMPLETED.
+  
+
+TIME SPENT IN MODULE : RESULTS;  CPU=       1.67;  WALL=      0.35
+
+
+START RUNNING MODULE :FINISHUP ...
+
+TIME SPENT IN MODULE :FINISHUP;  CPU=       0.00;  WALL=      0.00
+
+ Detailed disk usage: 
+	High usage overall   :    0.1 MiB,
+	Solver scratch       :    0.0 MiB,
+	Internal database    :    0.0 MiB,
+	Out-of-core assembly :    0.0 MiB,
+	Temporary files      :    0.0 MiB.
+
+SOLUTION COMPLETED, THE FOLLOWING IS CPU/WALL CLOCK SUMMARY (IN SECONDS):
+
+TOTAL TIME SPENT IN MODULE :READ    ;  CPU=       0.02;  WALL=      0.01
+TOTAL TIME SPENT IN MODULE :PREPR1  ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :DESIGN  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRDMGR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRROTD  ;  CPU=       0.23;  WALL=      0.00
+   Total time spent in section :PRP2DR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPACO  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPFT1  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRDMIG  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRDMIG2 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPDDM  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPROF  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPFRF  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRP3DR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRDPPD  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PREPOUT0;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PREPOUT ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTSET;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTDYN;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTBAR;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTDST;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTSTP;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTPLY;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROUTEND;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRMISD  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRP4DR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PROPT1  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRMIS2  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPSL4  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPMI1  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPFT3  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPEST  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPMI2  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPMMO  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPMI3  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPGPS  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPDSK  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPSUM  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRPMI4  ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :PREPRO  ;  CPU=       0.23;  WALL=      0.88
+TOTAL TIME SPENT IN MODULE :CHECKEL ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :PRASMB  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :SPASMB  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :INRTRLF ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLDRVS0 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLDRVS1 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLDRVS2 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLSLVINI;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLPRPBCS;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLSTEP  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :BLDMX1  ;  CPU=       0.16;  WALL=      0.00
+   Total time spent in section :BLDMTX  ;  CPU=       0.03;  WALL=      0.00
+   Total time spent in section :GTDIAK  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :FCTRIZ  ;  CPU=       0.02;  WALL=      0.00
+   Total time spent in section :BLDRHS  ;  CPU=       0.05;  WALL=      0.00
+   Total time spent in section :SOLRHS  ;  CPU=       0.12;  WALL=      0.00
+   Total time spent in section :RESIDUAL;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :CRESS2S ;  CPU=       0.02;  WALL=      0.00
+   Total time spent in section :NLSLVEND;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLDRVS3 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :NLDRVS4 ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :EIGSLVPR;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :AMLSPRP1;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :AMLSPRP2;  CPU=       0.00;  WALL=      0.01
+   Total time spent in section :AMLSPRP3;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :AMLSPRP4;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :EIGINI_X;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :EIGINP_X;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :SOLEIG_X;  CPU=       0.23;  WALL=      0.00
+   Total time spent in section :GETEIG  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MPCPRJ  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :REDSLV  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MPCRCV  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MDPINIT ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MDPGRAM ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MDPRD_a ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MDPRL_a ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :MDLREAD ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :KMGDAMP ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :ZLAFACT ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :ZLARLOD ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :ZLASUB  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :ZLAWRDU ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :CDSPEXP ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :STRENR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :KINENR  ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :OBJFUN  ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :SOLVER  ;  CPU=       0.62;  WALL=      0.04
+   Total time spent in section :GPSSTIC ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSSEIG ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSSDFRF;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSMFRF ;  CPU=       0.05;  WALL=      0.00
+   Total time spent in section :GPSSCMS ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSSTRAN;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSDUNI ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :GPSCSM  ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :STRESS  ;  CPU=       0.05;  WALL=      0.01
+   Total time spent in section :ACPVPOP ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :CMMAP   ;  CPU=       0.02;  WALL=      0.00
+   Total time spent in section :CMCSV   ;  CPU=       0.03;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :ACPOSTP ;  CPU=       0.09;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :RESULT  ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :CONVERGE;  CPU=       0.03;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :PRINT   ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :RESPREP ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :RESMEMO ;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :RESREADY;  CPU=       0.00;  WALL=      0.00
+   Total time spent in section :H3D     ;  CPU=       0.03;  WALL=      0.04
+   Total time spent in section :MISC    ;  CPU=       0.00;  WALL=      0.00
+TOTAL TIME SPENT IN MODULE :RESULTS ;  CPU=       1.67;  WALL=      0.35
+TOTAL TIME SPENT IN MODULE :FINISHUP;  CPU=       0.00;  WALL=      0.00
+
+CUMULATIVE RUN TIME:     CPU=        2.72;     WALL=        1.30
+
+
+TIME SPENT IN MODULE :   CLOSE;  CPU=       0.00;  WALL=      0.00
+

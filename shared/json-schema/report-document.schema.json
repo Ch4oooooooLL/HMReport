@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cae-report:report-document:1",
+  "type": "object",
+  "required": ["id", "run_id", "template_id", "page_size", "theme", "sections", "slides"],
+  "properties": {
+    "id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "template_id": { "type": "string" },
+    "page_size": { "const": "LAYOUT_WIDE" },
+    "theme": { "type": "object" },
+    "sections": { "type": "array" },
+    "slides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "layout", "elements", "notes"]
+      }
+    }
+  }
+}
+

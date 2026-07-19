@@ -1,0 +1,373 @@
+ ************************************************************************
+ **                                                                    **
+ **                                                                    **
+ **                     Altair OptiStruct(TM) 2019                     **
+ **                                                                    **
+ **             Advanced Engineering Analysis, Design and              **
+ **        Optimization Software from Altair Engineering, Inc.         **
+ **                                                                    **
+ **                                                                    **
+ **             Windows 10  (Build 9200)  DESKTOP-IUBD0IC              **
+ **            16 CPU:  AMD Ryzen 7 9700X 8-Core Processor             **
+ **                    35783 MB RAM,  51397 MB swap                    **
+ **                                                                    **
+ ** Build: 0960190med33190_Ce64RBW8UH14M:157056-000  20000040000000040 **
+ ************************************************************************
+ **  COPYRIGHT (C) 1996-2019                 Altair Engineering, Inc.  **
+ ** All Rights Reserved.  Copyright notice does not imply publication. **
+ **         Contains trade secrets of Altair Engineering, Inc.         **
+ ** Decompilation or disassembly of this software strictly prohibited. **
+ ************************************************************************
+ 
+  
+ *** OptiStruct defaults set from:
+   install config file: C:/Program Files/Altair/2019/hwsolvers/optistruct.cfg.
+  
+  
+ NOTE # 9199
+ MSGLMT=STRICT is active, all messages will be printed.
+ You can suppress some less important warning messages by use of
+  MSGLMT=BRIEF or UNREF (in config file or in the input data).
+  
+ 2 PARAM(s) were set:
+    AUTOSPC,YES
+    G,     .04
+  
+ NOTE # 1929
+ Created RAM scratch area: total size 10 MB.
+  
+ *** WARNING 1932:   PSHELL  ID  199 is not referenced.
+ *** WARNING 1932:      MAT  ID   99 is not referenced.
+  
+  
+ *** WARNING # 731
+ The zero lower bound specified in METHOD card of a frequency 
+ subcase (for vibrational eigenvalue analysis) is ignored.
+      subcase id = 4
+       METHOD id = 9301
+  
+ *** WARNING # 6325
+ STRESS is requested above the first loadcase and there are eigenvalue
+ loadcases. Stresses will be calculated and output for all eigenvectors.
+  
+ *** INFORMATION # 2431
+ Inertia relief is being switched on for RESVEC
+ calculation in modal FRF/transient analysis
+ for subcases with no SPC (free-free structure).
+ Please use param,inrel,0 to turn off this effect.
+  
+ NOTE # 113
+ RESVECs are not created for distributed static loads (PLOADi/GRAV/RFORCE)
+ referenced in modal FRF/transient analyses.
+  
+ *** INFORMATION # 3433
+ MUMPS solver is used by default for nonlinear analysis at subcase 5.
+ 
+
+************************************************************************
+
+OPTIMIZATION FILE AND PARAMETER INFORMATION :
+---------------------------------------------
+
+  FEM model file               : optistruct_feature_model.fem
+  Output files prefix          : optistruct_feature_model
+  Model read from files:
+     optistruct_feature_model.fem
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+FINITE ELEMENT MODEL DATA INFORMATION :
+---------------------------------------
+
+  Total # of Grids (Structural)        :        66
+  Total # of Elements                  :        26
+  Total # of Rigid Elements            :         2
+  Total # of Rigid Element Constraints :        21
+  Total # of Degrees of Freedom        :       213
+  (Structural)
+  Total # of Non-zero Stiffness Terms  :      2658
+
+ 
+  Element Type Information
+  ------------------------
+
+   CBAR     Elements   :        1
+   CBEAM    Elements   :        1
+   CHEXA    Elements   :        1
+   CTETRA   Elements   :        1
+   CPENTA   Elements   :        1
+   CONM2    Elements   :        1     
+   CQUAD4   Elements   :       17     
+   CTRIA3   Elements   :        2     
+   CBUSH    Elements   :        1     
+
+  Load and Boundary Information
+  -----------------------------
+
+   FORCE Sets        :         8
+   SPC   Sets        :         3
+   MPC   Sets        :         3
+
+  Material and Property Information
+  ---------------------------------
+
+   PBAR   Cards      :         1
+   PBEAM  Cards      :         1
+   PSOLID Cards      :         3
+   PCOMP(G)(P) Cards :         1
+   PSHELL Cards      :         4
+   PBUSH  Cards      :         1
+   MAT1   Cards      :         3
+   MAT8   Cards      :         1
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+OPTIMIZATION PROBLEM PARAMETERS :
+---------------------------------
+
+ NO DESIGN MATERIAL OR DESIGN VARIABLES FOUND  : ANALYSIS ONLY
+
+   ------------------------
+   Static Subcase Summary :
+   ------------------------
+
+   ----------   --------  --------
+   Subcase ID    SPC ID   FORCE ID
+   ----------   --------  --------
+        1         9002         9101
+        2         9002         9102
+        3         9002         9203
+        5         9002         9101
+   ----------   --------  --------
+
+   ---------------------------
+   Frequency Subcase Summary :
+   ---------------------------
+
+   ----------   --------  --------
+   Subcase ID    SPC ID    MODE # 
+   ----------   --------  --------
+          4         9002        12
+   ----------   --------  --------
+
+   -------------------------------
+   Modal Dynamic Subcase Summary :
+   -------------------------------
+
+   ---------- -------- -------- -------- -------- -------- -------- --------
+   Subcase ID  SPC ID   MPC ID   Freq ID DLOAD ID SDAMP ID  METHOD   RESVEC 
+   ---------- -------- -------- -------- -------- -------- -------- --------
+          6       9002     9012     9401     9503    NONE      9301    ON  
+   ---------- -------- -------- -------- -------- -------- -------- --------
+
+   Run Type                        :   Analysis Only (No design elements)
+   Run at location                 : C:/Users/Chao/Desktop/DOC/CODE/HMReport/examples/optistruct_feature_model/
+   Scratch file directory          : C:/Users/Chao/Desktop/DOC/CODE/HMReport/examples/optistruct_feature_model/
+                                     Free space:   213.129 GB
+   Number of CPU processors        :          1
+
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+MEMORY ESTIMATION INFORMATION :
+-------------------------------
+
+ Solver Type is:  Sparse-Matrix Solver
+                  Direct Method
+                  Block Lanczos Eigenvalue Extraction
+ 
+ Current Memory (RAM)                                    :     800 MB
+   In addition a ramdisk area was allocated in memory    :      10 MB
+ MUMPS Solver will run with In-Core Solution.
+ Estimated Minimum Memory (RAM) for Out of Core Solution :       6 MB
+ Recommended Memory (RAM) for Out of Core Solution       :       6 MB
+ Recommended Memory (RAM) for In-Core Solution           :       6 MB
+ (MUMPS solver allocates memory separately from OptiStruct,
+ Its memory requirement has been included in this report.)
+ (Note: The Minimum Memory Requirement is limited by Output Calculation.)    
+ 
+DISK SPACE ESTIMATION INFORMATION :
+-----------------------------------
+
+ Estimated Disk Space for Output Data Files              :       3 MB
+ Estimated Scratch Disk Space for In-Core Solution       :       2 MB
+ Estimated Scratch Disk Space for Out of Core Solution   :       2 MB
+
+************************************************************************
+
+
+BEGINNING ANALYSIS SOLUTION ....
+
+
+************************************************************************
+
+ANALYSIS RESULTS :
+------------------
+
+  
+ITERATION   0
+
+        Nonlinear  iteration  summary for    Subcase        5
+
+  Subcase         5  Load step:  1.0000E-01
+--------------------------------------------------------------------------------
+               Nonlinear Err. Measures   Gap and Contact Element Status  Maximum
+ Iter Avg. U    EUI      EPI      EWI    Open Closed Stick Slip Frozen  Plststrn
+--------------------------------------------------------------------------------
+  1  2.65E+00 9.90E+01 3.97E-13 3.97E-13     0     0     0     0     0  0.00E+00
+  2  2.65E+00 2.52E-13 3.71E-13 2.06E-25     0     0     0     0     0  0.00E+00
+
+  Subcase         5  Load step:  2.5000E-01
+--------------------------------------------------------------------------------
+               Nonlinear Err. Measures   Gap and Contact Element Status  Maximum
+ Iter Avg. U    EUI      EPI      EWI    Open Closed Stick Slip Frozen  Plststrn
+--------------------------------------------------------------------------------
+  1  6.63E+00 5.94E+01 2.54E-12 1.52E-12     0     0     0     0     0  0.00E+00
+  2  6.63E+00 3.60E-14 2.26E-12 2.04E-25     0     0     0     0     0  0.00E+00
+
+  Subcase         5  Load step:  4.7500E-01
+--------------------------------------------------------------------------------
+               Nonlinear Err. Measures   Gap and Contact Element Status  Maximum
+ Iter Avg. U    EUI      EPI      EWI    Open Closed Stick Slip Frozen  Plststrn
+--------------------------------------------------------------------------------
+  1  1.26E+01 4.69E+01 2.28E-13 1.08E-13     0     0     0     0     0  0.00E+00
+  2  1.26E+01 1.42E-13 2.27E-13 8.04E-26     0     0     0     0     0  0.00E+00
+
+  Subcase         5  Load step:  8.1250E-01
+--------------------------------------------------------------------------------
+               Nonlinear Err. Measures   Gap and Contact Element Status  Maximum
+ Iter Avg. U    EUI      EPI      EWI    Open Closed Stick Slip Frozen  Plststrn
+--------------------------------------------------------------------------------
+  1  2.15E+01 4.11E+01 6.23E-13 2.59E-13     0     0     0     0     0  0.00E+00
+  2  2.15E+01 2.51E-13 3.74E-12 2.19E-24     0     0     0     0     0  0.00E+00
+
+  Subcase         5  Load step:  1.0000E+00
+--------------------------------------------------------------------------------
+               Nonlinear Err. Measures   Gap and Contact Element Status  Maximum
+ Iter Avg. U    EUI      EPI      EWI    Open Closed Stick Slip Frozen  Plststrn
+--------------------------------------------------------------------------------
+  1  2.65E+01 1.86E+01 3.39E-13 6.35E-14     0     0     0     0     0  0.00E+00
+  2  2.65E+01 1.11E-13 2.20E-12 5.30E-25     0     0     0     0     0  0.00E+00
+  
+	*** Nonlinear solution has converged ***
+
+        Nonlinear  solution  summary for    Subcase        5
+            Total # of increments                 :        5
+            Total # of iterations                 :       10
+            Average # of iterations per increment :        2
+  
+ *** INFORMATION # 3201
+ Inertia relief was used in this nonlinear subcase. While this is allowed, 
+ the nonlinear solution may not be fully balanced.
+  
+ *** INFORMATION # 3454
+ MPC constraints for subcase 4 will be enforced 
+ with elimination of dependent dofs.
+  
+ *** INFORMATION # 3454
+ MPC constraints for subcase 1 will be enforced 
+ with elimination of dependent dofs.
+***************************************************
+Beginning modal dynamic frequency response analysis
+***************************************************
+Number of potential RESVECs before GS orthonormalization =        1
+
+RESVEC displacement vector number    1 is not 
+orthogonal to other modal vectors and will not be 
+used in modal frequency response loadcase        6
+
+For free-free models, setting param,fzero,cutofffreq 
+to a value higher than the frequency of the last rigid
+body mode will make the RESVEC meaningful.
+Number of potential RESVECs after GS orthonormalization =        0
+Number of RESVECs =        0
+  
+ *** INFORMATION # 2940
+ Regular factorization of complex modal matrix is used for modal solution.
+***************************************************
+Modal dynamic frequency response analysis completed
+***************************************************
+  
+ (Scratch disk space usage for starting iteration = 0 MB)
+(Running in-core solution)
+
+Volume                              =  1.09853E+05   Mass     =  2.96558E-03
+
+ Subcase   Compliance     Epsilon
+       1  6.930349E+05 -5.202310E-12
+       2  6.137664E+03 -2.972542E-13
+       3  2.349772E+03 -5.885971E-12
+       5  6.930349E+05  9.530568E-26
+
+Note : Epsilon = Residual Strain Energy Ratio.
+
+ Nonlinear solution summary of all subcases 
+    Total # of increments                 :        5
+    Total # of iterations                 :       10
+    Average # of iterations per increment :        2
+
+                                                  Generalized   Generalized
+ Subcase  Mode    Frequency      Eigenvalue        Stiffness        Mass   
+       4      1   1.138759E+00   5.119454E+01     5.119454E+01   1.000000E+00
+       4      2   1.273138E+00   6.398976E+01     6.398976E+01   1.000000E+00
+       4      3   6.836124E+01   1.844929E+05     1.844929E+05   1.000000E+00
+       4      4   1.216845E+02   5.845613E+05     5.845613E+05   1.000000E+00
+       4      5   1.232809E+02   6.000000E+05     6.000000E+05   1.000000E+00
+       4      6   1.453705E+02   8.342814E+05     8.342814E+05   1.000000E+00
+       4      7   1.480996E+02   8.658995E+05     8.658995E+05   1.000000E+00
+       4      8   1.679882E+02   1.114082E+06     1.114082E+06   1.000000E+00
+       4      9   3.656416E+02   5.278019E+06     5.278019E+06   1.000000E+00
+       4     10   3.847616E+02   5.844444E+06     5.844444E+06   1.000000E+00
+       4     11   4.158904E+02   6.828377E+06     6.828377E+06   1.000000E+00
+       4     12   4.748586E+02   8.902017E+06     8.902017E+06   1.000000E+00
+
+
+************************************************************************
+  
+ ANALYSIS COMPLETED.
+  
+
+************************************************************************
+
+RESOURCE USAGE INFORMATION
+--------------------------
+
+ MAXIMUM MEMORY USED                                       801 MB
+   IN ADDITION      1 MB MEMORY WAS ALLOCATED FOR TEMPORARY USE
+   INCLUDING MEMORY FOR MUMPS                                1 MB
+   IN ADDITION     10 MB RAMDISK AREA WAS ALLOCATED IN MEMORY
+ MAXIMUM DISK SPACE USED                                     1 MB
+   INCLUDING DISK SPACE FOR MUMPS                            0 MB
+
+************************************************************************
+
+
+************************************************************************
+
+COMPUTE TIME INFORMATION
+------------------------
+
+ EXECUTION STARTED                         Sun Jul 19 13:13:29 2026    
+ EXECUTION COMPLETED                       Sun Jul 19 13:13:31 2026    
+ ELAPSED TIME                                         00:00:01
+ CPU TIME                                             00:00:02
+
+************************************************************************
+
+  
+                        ***** END OF REPORT *****
+  
+ For Useful OptiStruct Tips and Tricks, go to the URL:
+ http://www.altairhyperworks.com/tips.aspx

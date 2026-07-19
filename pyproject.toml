@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cae-result-report-workbench"
+version = "0.1.0"
+description = "Local-first CAE result analysis and reporting workbench"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "uvicorn[standard]>=0.35,<1",
+  "pydantic>=2.11,<3",
+  "httpx>=0.28,<1",
+  "pillow>=11,<13",
+  "python-pptx>=1.0,<2",
+]
+
+[project.optional-dependencies]
+desktop = ["PySide6>=6.8,<7"]
+dev = [
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<10",
+  "pytest-asyncio>=0.25,<2",
+  "pytest-cov>=6,<8",
+  "pytest-qt>=4.4,<5",
+  "ruff>=0.11,<1",
+]
+
+[project.scripts]
+cae-report-server = "cae_report_server.main:main"
+cae-report-worker = "cae_report_worker.main:main"
+cae-report-desktop = "cae_report_desktop.main:main"
+cae-report-fake-hv = "fake_hyperview.main:main"
+
+[tool.setuptools.packages.find]
+where = ["server/src", "worker/src", "desktop/src", "shared/python", "tools"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["server/src", "worker/src", "desktop/src", "tools"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["server/src", "worker/src", "desktop/src", "tools", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["cae_report_server", "cae_report_worker", "cae_report_shared"]
+mypy_path = ["server/src", "worker/src", "shared/python"]

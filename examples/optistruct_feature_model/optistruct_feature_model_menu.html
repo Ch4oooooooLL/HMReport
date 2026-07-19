@@ -1,0 +1,356 @@
+ 
+<html>
+<head>
+<style type="text/css">
+<!--
+.select{background:#EEEEEE;color:#222222;font-family:Arial;font-size:10pt;font-weight:normal;}
+//-->
+</style>
+</head>
+ 
+<body bgcolor="#C1C1C1" text="#222222">
+ 
+<form name="OSForm">
+<table>
+<tr>
+<td><font face="Arial" size="2"><i><b>Subcases and simulations</b></i></font></td>
+<td><font face="Arial" size="2"><i><b>Results</b></i></font></td>
+</tr>
+<tr>
+<td><select class="select" name="Load" onChange="Change()" style="width:225px" width=225 height=200></select></td>
+<td><select class="select" name="Resu" onChange="Create()" style="width:175px" width=175 height=200></select></td>
+</tr>
+<tr>
+<td><select class="select" name="Simu" onChange="Create()" style="width:225px" width=225 height=200></select></td>
+<td><font face="Arial" size="2"><b>
+<input type="radio" name="Type" onClick="Create()" checked>Contour
+<input type="radio" name="Type" onClick="Create()">Assign
+</b></font></td>
+</tr>
+</table>
+</form>
+ 
+<center>
+<font face="Arial" size="1" color="#444444">
+<b>&#169; 1996-20192014 Altair Engineering, Inc.</b>
+</font> 
+</center> 
+ 
+<script language="JavaScript">
+<!--
+LoadArray = new Array(
+new Array("Select a subcase...")
+,
+new Array("Subcase 1 (FULL_LOAD_STATIC)")
+,
+new Array("Subcase 2 (REVERSE_LOAD_STATIC)")
+,
+new Array("Subcase 3 (GRAVITY_ONLY_STATIC)")
+,
+new Array("Subcase 5 (NONLINEAR_STATIC)")
+,
+new Array("Subcase 4 (NORMAL_MODES)")
+,
+new Array("Subcase 6 (HARMONIC_SWEEP)")
+);
+  
+SimuArray = new Array(
+new Array("Select a simulation...")
+,
+new Array("Static analysis")
+,
+new Array("Static analysis")
+,
+new Array("Static analysis")
+,
+new Array("Static analysis")
+,
+new Array(
+"Mode 1 - F = 1.138759E+00"
+,
+"Mode 2 - F = 1.273138E+00"
+,
+"Mode 3 - F = 6.836124E+01"
+,
+"Mode 4 - F = 1.216845E+02"
+,
+"Mode 5 - F = 1.232809E+02"
+,
+"Mode 6 - F = 1.453705E+02"
+,
+"Mode 7 - F = 1.480996E+02"
+,
+"Mode 8 - F = 1.679882E+02"
+,
+"Mode 9 - F = 3.656416E+02"
+,
+"Mode 10 - F = 3.847616E+02"
+,
+"Mode 11 - F = 4.158904E+02"
+,
+"Mode 12 - F = 4.748586E+02"
+)
+,
+new Array(
+"Load 1 - F = 5.000000E+00"
+,
+"Load 2 - F = 1.000000E+01"
+,
+"Load 3 - F = 1.500000E+01"
+,
+"Load 4 - F = 2.000000E+01"
+,
+"Load 5 - F = 2.500000E+01"
+,
+"Load 6 - F = 3.000000E+01"
+,
+"Load 7 - F = 3.500000E+01"
+,
+"Load 8 - F = 4.000000E+01"
+,
+"Load 9 - F = 4.500000E+01"
+,
+"Load 10 - F = 5.000000E+01"
+,
+"Load 11 - F = 5.500000E+01"
+,
+"Load 12 - F = 6.000000E+01"
+,
+"Load 13 - F = 6.500000E+01"
+,
+"Load 14 - F = 7.000000E+01"
+,
+"Load 15 - F = 7.500000E+01"
+,
+"Load 16 - F = 8.000000E+01"
+,
+"Load 17 - F = 8.500000E+01"
+,
+"Load 18 - F = 9.000000E+01"
+,
+"Load 19 - F = 9.500000E+01"
+,
+"Load 20 - F = 1.000000E+02"
+,
+"Load 21 - F = 1.050000E+02"
+)
+);
+  
+ResuArray = new Array(
+new Array(
+new Array("Select results...","-","-"))
+,
+new Array(
+new Array("Displacements","Displacement","Mag")
+,
+new Array("Element Stresses","Element Stresses (2D & 3D)","Von Mises Stress")
+)
+,
+new Array(
+new Array("Displacements","Displacement","Mag")
+,
+new Array("Element Stresses","Element Stresses (2D & 3D)","Von Mises Stress")
+)
+,
+new Array(
+new Array("Displacements","Displacement","Mag")
+,
+new Array("Element Stresses","Element Stresses (2D & 3D)","Von Mises Stress")
+)
+,
+new Array(
+new Array("Displacements","Displacement","Mag")
+,
+new Array("Element Stresses","Element Stresses (2D & 3D)","Von Mises Stress")
+)
+,
+new Array(
+new Array("Eigen Modes","Eigen Mode","Mag")
+)
+,
+new Array(
+new Array("Displacements","Displacement","Mag")
+,
+new Array("Velocities","Velocity","Mag")
+,
+new Array("Accelerations","Acceleration","Mag")
+,
+new Array("Element Stresses","Element Stresses (2D & 3D)","Von Mises Stress")
+)
+);
+  
+fLoad = document.OSForm.Load;
+for (i = 0; i < LoadArray.length; i++)
+{
+  fLoad.options[i] = new Option(LoadArray[i]);
+}
+Blank();
+Change();
+  
+function Change()
+{
+  fLoad = document.OSForm.Load;
+  fSimu = document.OSForm.Simu;
+  fResu = document.OSForm.Resu;
+  aSimu = SimuArray[fLoad.selectedIndex];
+  aResu = ResuArray[fLoad.selectedIndex];
+  for (i = fSimu.options.length; i >= 0; i--)
+  {
+    fSimu.options[i] = null;
+  }
+  for (i = 0; i < aSimu.length; i++)
+  {
+    fSimu.options[i] = new Option(aSimu[i]);
+  }
+  for (i = fResu.options.length; i >= 0; i--)
+  {
+    fResu.options[i] = null;
+  }
+  for (i = 0; i < aResu.length; i++)
+  {
+    fResu.options[i] = new Option(aResu[i][0]);
+    fResu.options[i].value = aResu[i][1];
+  }
+  fSimu.options[0].selected = true;
+  fResu.options[0].selected = true;
+  Create();
+}
+function Create()
+{
+  fLoad = document.OSForm.Load;
+  fSimu = document.OSForm.Simu;
+  fResu = document.OSForm.Resu;
+  fType = document.OSForm.Type;
+  iLoad = fLoad.selectedIndex;
+  iSimu = fSimu.selectedIndex;
+  iResu = fResu.selectedIndex;
+  aSimu = SimuArray[iLoad];
+  aResu = ResuArray[iLoad];
+  sLoad = LoadArray[iLoad];
+  sSimu = aSimu[iSimu];
+  sRes1 = aResu[iResu][1];
+  sRes2 = aResu[iResu][2];
+  if (iLoad == 0)
+  {
+    fSimu.disabled = true;
+    fResu.disabled = true;
+    Blank();
+    return;
+  }
+  else
+  {
+    fSimu.disabled = false;
+    fResu.disabled = false;
+  }
+  if (fType[0].checked)
+  {
+    sType = "contour";
+  }
+  else
+  {
+    sType = "assign";
+  }
+  if (navigator.userAgent.indexOf("MSIE") > 0)
+  {
+    hx = parent.output.document.body.clientWidth-20;
+    hy = parent.output.document.body.clientHeight-20;
+  }
+  else
+  {
+    hx = parent.output.innerWidth-20;
+    hy = parent.output.innerHeight-20;
+  }
+  sHtml1 = "<html>\n";
+  sBody1 = "<body bgcolor=\"#C1C1C1\">\n";
+  sBody2 = "</body>\n";
+  sHtml2 = "</html>\n";
+  sObj1 = "<object ID=\"HVPControl\" width="+hx+" height="+hy+" classid=\"clsid:D28D4D39-57F5-4DFB-8832-C8CB1B1DC410\">\n";
+  sPrm1 = "<param name=\"src\"      value=\"optistruct_feature_model.h3d\" />\n";
+  sPrm2 = "<param name=\"inplace\"  value=\"1\" />\n";
+  sPrm3 = "<param name=\"rr_name0\" value=\""+sType+" dataset\" />\n";
+  sPrm4 = "<param name=\"rr_val0\"  value=\""+sRes1+"\" />\n";
+  sPrm5 = "<param name=\"rr_name1\" value=\""+sType+" component\" />\n";
+  sPrm6 = "<param name=\"rr_val1\"  value=\""+sRes2+"\" />\n";
+  sPrm7 = "<param name=\"rr_name2\" value=\"simulation\" />\n";
+  sPrm8 = "<param name=\"rr_val2\"  value=\""+sLoad+"|"+sSimu+"\" />\n";
+  sObj2 = "</object>\n";
+  sEmb1 = "<embed type=\"application/x-h3d\" width="+hx+" height="+hy+"\n";
+  sEmb2 = " src      = \"optistruct_feature_model.h3d\"\n";
+  sEmb3 = " rr_name0 = \""+sType+" dataset\"\n";
+  sEmb4 = " rr_val0  = \""+sRes1+"\"\n";
+  sEmb5 = " rr_name1 = \""+sType+" component\"\n";
+  sEmb6 = " rr_val1  = \""+sRes2+"\"\n";
+  sEmb7 = " rr_name2 = \"simulation\"\n";
+  sEmb8 = " rr_val2  = \""+sLoad+"|"+sSimu+"\">\n";
+ 
+  with (parent.output)
+  {
+    document.open();
+    document.write(sHtml1);
+    document.write(sBody1);
+    document.write(sObj1);
+    document.write(sPrm1);
+    document.write(sPrm2);
+    document.write(sPrm3);
+    document.write(sPrm4);
+    document.write(sPrm5);
+    document.write(sPrm6);
+    document.write(sPrm7);
+    document.write(sPrm8);
+    document.write(sEmb1);
+    document.write(sEmb2);
+    document.write(sEmb3);
+    document.write(sEmb4);
+    document.write(sEmb5);
+    document.write(sEmb6);
+    document.write(sEmb7);
+    document.write(sEmb8);
+    document.write(sObj2);
+    document.write(sBody2);
+    document.write(sHtml2);
+    document.close();
+  }
+}
+function Blank()
+{
+  if (navigator.userAgent.indexOf("MSIE") > 0)
+  {
+    hx = parent.output.document.body.clientWidth-20;
+    hy = parent.output.document.body.clientHeight-20;
+  }
+  else
+  {
+    hx = parent.output.innerWidth-20;
+    hy = parent.output.innerHeight-20;
+  }
+  sHtml1 = "<html>\n";
+  sBody1 = "<body bgcolor=\"#C1C1C1\">\n";
+  sBody2 = "</body>\n";
+  sHtml2 = "</html>\n";
+  sObj1 = "<object ID=\"HVPControl\" width="+hx+" height="+hy+" classid=\"clsid:D28D4D39-57F5-4DFB-8832-C8CB1B1DC410\">\n";
+  sPrm1 = "<param name=\"src\"      value=\"optistruct_feature_model.h3d\" />\n";
+  sPrm2 = "<param name=\"inplace\"  value=\"1\" />\n";
+  sEmb1 = "<embed type=\"application/x-h3d\" width="+hx+" height="+hy+"\n";
+  sEmb2 = " src = \"optistruct_feature_model.h3d\">\n";
+  sObj2 = "</object>\n";
+  with (parent.output)
+  {
+    document.open();
+    document.write(sHtml1);
+    document.write(sBody1);
+    document.write(sObj1);
+    document.write(sPrm1);
+    document.write(sPrm2);
+    document.write(sEmb1);
+    document.write(sEmb2);
+    document.write(sObj2);
+    document.write(sBody2);
+    document.write(sHtml2);
+    document.close();
+  }
+}
+//-->
+</script>
+ 
+</body>
+</html>

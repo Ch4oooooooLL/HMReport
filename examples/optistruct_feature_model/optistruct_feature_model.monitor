@@ -1,0 +1,35 @@
+ FEM model file:  optistruct_feature_model.fem
+ Time and date :  Sun Jul 19 13:13:30 2026    
+
+
+ ***********************************************************************
+ Notes:
+ ------
+   INCREMENT  NUMBER    : the incrmenet counter in one subcase
+              CUTBACK   : the number of cutbacks
+              CONVERGED : whether the increment has converged
+        ITER  CONT      : the number of contact iterations
+              EQUI      : the number of equilibrium iterations
+              TOTL      : the total number of iterations
+        TIME  INCR      : the time increment
+              SUBCASE   : the subcase time that starts from zero
+              CURR      : the current time (or total time)
+        LOAD  FACTOR    : the propotional load factor in one subcase
+
+ ***********************************************************************
+
+ 
+ ========  ============================  ==============  ==========================  ========  ========================
+  SUBCASE           INCREMENT                 ITER                 TIME OF              LOAD               MONITOR     
+      SID    NUMBER  CUTBACK  CONVERGED  CONT EQUI TOTL      INCR  SUBCASE     CURR    FACTOR        DISP     GRID  DOF
+ --------  -------- --------- ---------  ---- ---- ----  -------- -------- --------  --------  ---------- -------- ----
+        5         1         -       Yes     0    2    2     0.100    0.100    0.100     0.100           -        -    -
+        5         2         -       Yes     0    2    2     0.150    0.250    0.250     0.250           -        -    -
+        5         3         -       Yes     0    2    2     0.225    0.475    0.475     0.475           -        -    -
+        5         4         -       Yes     0    2    2     0.337    0.812    0.812     0.812           -        -    -
+        5         5         -       Yes     0    2    2     0.188    1.000    1.000     1.000           -        -    -
+
+
+ ANALYSIS COMPLETED.
+
+

@@ -1,0 +1,2 @@
+"""Deterministic HyperView protocol double."""
+

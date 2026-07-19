@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cae-report:view-state:1",
+  "type": "object",
+  "required": ["schema_version", "source_fingerprint", "subcase", "simulation", "result", "contour", "deformation", "visibility", "target", "camera", "render"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "source_fingerprint": { "type": "string" },
+    "subcase": { "type": "object" },
+    "simulation": { "type": "object" },
+    "result": { "type": "object" },
+    "contour": { "type": "object" },
+    "deformation": { "type": "object" },
+    "visibility": { "type": "object" },
+    "target": { "type": "object" },
+    "camera": { "type": "object" },
+    "render": { "type": "object" }
+  },
+  "additionalProperties": false
+}
+

@@ -1,11 +1,66 @@
 """Qt QSS Style Sheet for CAE Report Desktop application (Windows 10/11 Fluent Style)."""
 
 CAE_DESKTOP_QSS = """
-/* Global Window Style - Windows 11 Fluent Light Theme */
-QMainWindow {
+/* Global Window Style - Custom Frameless Container */
+#FramelessContainer {
     background-color: #F3F3F3;
+    border: 1px solid #D0D0D0;
+    border-radius: 8px;
+}
+
+QMainWindow {
+    background-color: transparent;
     font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
     color: #1A1A1A;
+}
+
+/* Custom Title Bar */
+#CustomTitleBar {
+    background-color: #FFFFFF;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+#TitleBarIcon {
+    background-color: #0067C0;
+    color: #FFFFFF;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+#TitleBarTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333333;
+}
+
+/* Title Bar Control Buttons */
+#TitleMinBtn, #TitleMaxBtn {
+    background-color: transparent;
+    border: none;
+    border-radius: 0px;
+    color: #555555;
+    font-size: 13px;
+}
+
+#TitleMinBtn:hover, #TitleMaxBtn:hover {
+    background-color: #E5E5E5;
+    color: #000000;
+}
+
+#TitleCloseBtn {
+    background-color: transparent;
+    border: none;
+    border-top-right-radius: 7px;
+    color: #555555;
+    font-size: 13px;
+}
+
+#TitleCloseBtn:hover {
+    background-color: #E81123;
+    color: #FFFFFF;
 }
 
 /* ToolBar Styling */
@@ -179,6 +234,8 @@ QStatusBar {
     background-color: #F8F8F8;
     color: #616161;
     border-top: 1px solid #E5E5E5;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
 }
 
 QStatusBar QLabel {
@@ -187,4 +244,5 @@ QStatusBar QLabel {
     font-size: 12px;
 }
 """
+
 

@@ -4,8 +4,8 @@ import webbrowser
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QCloseEvent
+from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtGui import QAction, QCloseEvent, QMouseEvent
 from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
@@ -28,6 +28,7 @@ from .dialogs.new_project import NewProjectWizard
 from .process_supervisor import ProcessSupervisor
 from .server_client import ServerClient
 from .style import CAE_DESKTOP_QSS
+from .title_bar import CustomTitleBar
 
 
 class MainWindow(QMainWindow):
@@ -36,6 +37,17 @@ class MainWindow(QMainWindow):
         self.workspace = workspace
         self.setWindowTitle("CAE 结果分析与报告工作台 (HMReport)")
         self.resize(1280, 820)
+        
+        # Enable Frameless Window
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setMouseTracking(True)
+
+        self._resize_margin = 6
+        self._is_resizing = False
+        self._resize_drag_pos: QPoint | None = None
+        self._resize_direction: str | None = None
+
         self.client: ServerClient | None = None
         self.projects: list[dict[str, Any]] = []
         self.current_project: dict[str, Any] | None = None
@@ -52,6 +64,22 @@ class MainWindow(QMainWindow):
         self.supervisor.start()
 
     def _build_ui(self) -> None:
+        # Root container with custom border
+        self.container = QWidget(self)
+        self.container.setObjectName("FramelessContainer")
+        container_layout = QVBoxLayout(self.container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(0)
+
+        # Custom Title Bar
+        self.title_bar = CustomTitleBar(self.container)
+        container_layout.addWidget(self.title_bar)
+
+        # ToolBar Panel
+        toolbar_wrapper = QWidget()
+        toolbar_layout = QHBoxLayout(toolbar_wrapper)
+        toolbar_layout.setContentsMargins(0, 0, 0, 0)
+        
         toolbar = self.addToolBar("项目操作")
         toolbar.setMovable(False)
         for text, slot in (
@@ -73,6 +101,9 @@ class MainWindow(QMainWindow):
         delete_action.triggered.connect(self.delete_project)
         toolbar.addAction(delete_action)
 
+        container_layout.addWidget(toolbar)
+
+        # Main Content Splitter
         self.project_list = QListWidget()
         self.project_list.setMinimumWidth(280)
         self.project_list.currentItemChanged.connect(self._project_selected)
@@ -168,7 +199,11 @@ class MainWindow(QMainWindow):
         splitter.addWidget(left)
         splitter.addWidget(detail)
         splitter.setStretchFactor(1, 1)
-        self.setCentralWidget(splitter)
+        container_layout.addWidget(splitter, 1)
+
+        # Status Bar
+        container_layout.addWidget(self.statusBar())
+        self.setCentralWidget(self.container)
 
         self.server_status = QLabel("Server: starting")
         self.worker_status = QLabel("Worker: waiting")
@@ -176,6 +211,70 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.server_status)
         self.statusBar().addPermanentWidget(self.worker_status)
         self.statusBar().addPermanentWidget(self.hyperview_status)
+
+    # Mouse Events for Window Border Resizing
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton and self._resize_direction:
+            self._is_resizing = True
+            self._resize_drag_pos = event.globalPosition().toPoint()
+            event.accept()
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        pos = event.position().toPoint()
+        rect = self.rect()
+        margin = self._resize_margin
+
+        if not self._is_resizing:
+            left_edge = pos.x() <= margin
+            right_edge = pos.x() >= rect.width() - margin
+            top_edge = pos.y() <= margin
+            bottom_edge = pos.y() >= rect.height() - margin
+
+            if top_edge and left_edge:
+                self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+                self._resize_direction = "top_left"
+            elif top_edge and right_edge:
+                self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+                self._resize_direction = "top_right"
+            elif bottom_edge and left_edge:
+                self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+                self._resize_direction = "bottom_left"
+            elif bottom_edge and right_edge:
+                self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+                self._resize_direction = "bottom_right"
+            elif left_edge:
+                self.setCursor(Qt.CursorShape.SizeHorCursor)
+                self._resize_direction = "left"
+            elif right_edge:
+                self.setCursor(Qt.CursorShape.SizeHorCursor)
+                self._resize_direction = "right"
+            elif top_edge:
+                self.setCursor(Qt.CursorShape.SizeVerCursor)
+                self._resize_direction = "top"
+            elif bottom_edge:
+                self.setCursor(Qt.CursorShape.SizeVerCursor)
+                self._resize_direction = "bottom"
+            else:
+                self.setCursor(Qt.CursorShape.ArrowCursor)
+                self._resize_direction = None
+        else:
+            global_pos = event.globalPosition().toPoint()
+            diff = global_pos - (self._resize_drag_pos or global_pos)
+            geo = self.geometry()
+
+            if "right" in (self._resize_direction or ""):
+                geo.setWidth(max(800, geo.width() + diff.x()))
+            if "bottom" in (self._resize_direction or ""):
+                geo.setHeight(max(600, geo.height() + diff.y()))
+
+            self.setGeometry(geo)
+            self._resize_drag_pos = global_pos
+            event.accept()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        self._is_resizing = False
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        event.accept()
 
     def _connected(self, url: str) -> None:
         self.client = ServerClient(url)

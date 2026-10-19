@@ -35,3 +35,32 @@ def test_parser_follows_include(tmp_path: Path) -> None:
     assert model.nodes[9] == (1.0, 2.0, 3.0)
     assert model.include_files == [str(include.resolve())]
 
+
+def test_parser_follows_nested_includes_from_head_file(tmp_path: Path) -> None:
+    parts = tmp_path / "parts"
+    parts.mkdir()
+    nodes = parts / "nodes.fem"
+    nodes.write_text("GRID,9,,1.,2.,3.\n", encoding="utf-8")
+    assembly = tmp_path / "assembly.inc"
+    assembly.write_text('INCLUDE = "parts/nodes.fem"\n', encoding="utf-8")
+    head = tmp_path / "head.fem"
+    head.write_text("BEGIN BULK\nINCLUDE 'assembly.inc'\nENDDATA\n", encoding="utf-8")
+
+    model = FemParser().parse(head)
+
+    assert model.nodes[9] == (1.0, 2.0, 3.0)
+    assert model.include_files == [str(assembly.resolve()), str(nodes.resolve())]
+
+
+def test_boundary_summary_accepts_inertia_relief_without_constraints(tmp_path: Path) -> None:
+    fem = tmp_path / "inertia_relief.fem"
+    fem.write_text(
+        "SOL 101\nCEND\nBEGIN BULK\nPARAM,INREL,-2\nGRAV,10,0,9810.,0.,0.,-1.\nENDDATA\n",
+        encoding="utf-8",
+    )
+
+    boundary = FemParser().parse(fem).boundary_summary()
+
+    assert boundary["constraints"] == []
+    assert boundary["inertia_relief"] == {"enabled": True, "value": "-2"}
+

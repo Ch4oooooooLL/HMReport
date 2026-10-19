@@ -59,9 +59,15 @@ class NewProjectWizard(QWizard):
     def _source_page(self) -> QWizardPage:
         page = QWizardPage()
         page.setTitle("外部输入文件")
-        page.setSubTitle("只保存绝对路径和指纹，不复制或修改 FEM/H3D。")
+        page.setSubTitle(
+            "FEM 使用 INCLUDE 组装时只需选择头文件；工作台会递归读取并校验子文件。"
+            "所有输入只保存绝对路径和指纹，不会被复制或修改。"
+        )
         layout = QFormLayout(page)
-        layout.addRow("FEM *", self._path_row(self.fem_edit, False, "选择 FEM", "FEM (*.fem *.bdf *.dat *.nas)"))
+        layout.addRow(
+            "FEM 头文件 *",
+            self._path_row(self.fem_edit, False, "选择 FEM 头文件", "FEM (*.fem *.bdf *.dat *.nas)"),
+        )
         layout.addRow("H3D *", self._path_row(self.h3d_edit, False, "选择 H3D", "H3D (*.h3d)"))
         page.registerField("fem*", self.fem_edit)
         page.registerField("h3d*", self.h3d_edit)

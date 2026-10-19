@@ -6,9 +6,12 @@ import os
 import re
 import shutil
 import uuid
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from cae_report_shared.fem_includes import resolve_fem_source_tree
 
 from .database import Database, decode_json_fields
 from .schemas import TASK_TYPES, ProjectCreate, RunCreate, SourceCreate
@@ -63,6 +66,37 @@ def file_fingerprint(path: Path, *, fast: bool | None = None) -> tuple[str, str]
     return "sha256", digest.hexdigest()
 
 
+def fem_tree_fingerprint(path: Path) -> dict[str, Any]:
+    tree = resolve_fem_source_tree(path)
+    if tree.missing:
+        return {
+            "availability": "missing",
+            "error": "FEM_INCLUDE_MISSING",
+            "missing_includes": [str(item) for item in tree.missing],
+        }
+    digest = hashlib.sha256()
+    size_bytes = 0
+    modified_time_ns = 0
+    for source in tree.files:
+        stat = source.stat()
+        size_bytes += stat.st_size
+        modified_time_ns = max(modified_time_ns, stat.st_mtime_ns)
+        digest.update(str(source).encode("utf-8"))
+        digest.update(b"\0")
+        with source.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        digest.update(b"\0")
+    return {
+        "availability": "available",
+        "fingerprint_type": "fem-tree-sha256",
+        "fingerprint": digest.hexdigest(),
+        "size_bytes": size_bytes,
+        "modified_time_ns": modified_time_ns,
+        "include_files": [str(item) for item in tree.includes],
+    }
+
+
 def verify_source(path: Path, source_type: str) -> dict[str, Any]:
     if not path.exists():
         return {"availability": "missing", "error": "SOURCE_MISSING"}
@@ -77,6 +111,8 @@ def verify_source(path: Path, source_type: str) -> dict[str, Any]:
     }
     if source_type in allowed and path.suffix.lower() not in allowed[source_type]:
         return {"availability": "unsupported", "error": "SOURCE_UNSUPPORTED"}
+    if source_type == "fem":
+        return fem_tree_fingerprint(path)
     fingerprint_type, fingerprint = file_fingerprint(path)
     stat = path.stat()
     return {
@@ -560,13 +596,28 @@ class WorkbenchService:
             return self.get_task(task_id)
         if status in {"completed", "completed_with_warnings"}:
             self._persist_result(task, result)
+        output_manifest = self._output_manifest(task["task_type"], result)
         self.db.execute(
             """UPDATE run_tasks SET status=?,progress_current=CASE WHEN ? LIKE 'completed%' THEN progress_total ELSE progress_current END,
                output_manifest_json=?,finished_at=?,heartbeat_at=?,error_code=?,error_message=? WHERE id=?""",
-            (status, status, json.dumps(result, ensure_ascii=False), now(), now(), error_code, error_message, task_id),
+            (status, status, json.dumps(output_manifest, ensure_ascii=False), now(), now(), error_code, error_message, task_id),
         )
         self._refresh_run(task["run_id"])
         return self.get_task(task_id)
+
+    @staticmethod
+    def _output_manifest(task_type: str, result: dict[str, Any]) -> dict[str, Any]:
+        if task_type != "fem.boundary_conditions":
+            return result
+        return {
+            "counts": {
+                name: len(result.get(name, []))
+                for name in ("loads", "constraints", "connections")
+            },
+            "inertia_relief": result.get(
+                "inertia_relief", {"enabled": False, "value": None}
+            ),
+        }
 
     def _persist_result(self, task: dict[str, Any], result: dict[str, Any]) -> None:
         run_id = task["run_id"]
@@ -618,14 +669,22 @@ class WorkbenchService:
         allowed = {"components", "materials", "properties", "subcases", "loads", "constraints", "connections", "h3d_subcases", "h3d_simulations", "h3d_result_types"}
         if table not in allowed:
             raise ValueError(table)
-        self.db.execute(f"DELETE FROM {table} WHERE run_id=?", (run_id,))
         used_ids: set[str] = set()
-        for index, item in enumerate(items):
-            entity_id = f"{run_id}:{prefix}:{item.get('id', index)}"
-            if entity_id in used_ids:
-                entity_id = f"{entity_id}:{index}"
-            used_ids.add(entity_id)
-            self.db.execute(f"INSERT INTO {table}(id,run_id,data_json) VALUES(?,?,?)", (entity_id, run_id, json.dumps(item, ensure_ascii=False)))
+
+        def rows() -> Iterator[tuple[str, str, str]]:
+            for index, item in enumerate(items):
+                entity_id = f"{run_id}:{prefix}:{item.get('id', index)}"
+                if entity_id in used_ids:
+                    entity_id = f"{entity_id}:{index}"
+                used_ids.add(entity_id)
+                yield entity_id, run_id, json.dumps(item, ensure_ascii=False)
+
+        with self.db.connect() as connection:
+            connection.execute(f"DELETE FROM {table} WHERE run_id=?", (run_id,))
+            connection.executemany(
+                f"INSERT INTO {table}(id,run_id,data_json) VALUES(?,?,?)",
+                rows(),
+            )
 
     def _persist_capture(self, run_id: str, hotspot_id: str | None, capture: dict[str, Any]) -> None:
         capture_id = str(capture.get("id") or new_id("cap"))
@@ -698,10 +757,19 @@ class WorkbenchService:
             row = self.db.one(f"SELECT data_json FROM {scalar_tables[kind]} WHERE run_id=?", (run_id,))
             return json.loads(row["data_json"]) if row else {}
         if kind == "boundary-conditions":
-            return {
+            boundary: dict[str, Any] = {
                 name: [json.loads(row["data_json"]) for row in self.db.all(f"SELECT data_json FROM {table} WHERE run_id=?", (run_id,))]
                 for name, table in {"loads": "loads", "constraints": "constraints", "connections": "connections"}.items()
             }
+            task = self.db.one(
+                "SELECT output_manifest_json FROM run_tasks WHERE run_id=? AND task_type='fem.boundary_conditions'",
+                (run_id,),
+            )
+            manifest = json.loads(task["output_manifest_json"]) if task else {}
+            boundary["inertia_relief"] = manifest.get(
+                "inertia_relief", {"enabled": False, "value": None}
+            )
+            return boundary
         if kind == "result-index":
             return {
                 name: [json.loads(row["data_json"]) for row in self.db.all(f"SELECT data_json FROM {table} WHERE run_id=?", (run_id,))]

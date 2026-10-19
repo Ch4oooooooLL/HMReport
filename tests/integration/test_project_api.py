@@ -43,6 +43,30 @@ def test_changed_source_blocks_old_draft_and_new_run(client: TestClient, project
     assert blocked_run.status_code == 409
 
 
+def test_changed_included_fem_blocks_new_run(
+    client: TestClient,
+    project_payload: dict[str, object],
+    source_files: tuple[Path, Path],
+) -> None:
+    fem, _ = source_files
+    include = fem.with_name("body.inc")
+    include.write_text("GRID,99,,0.,0.,0.\n", encoding="utf-8")
+    fem.write_text(
+        fem.read_text(encoding="utf-8").replace("ENDDATA", "INCLUDE 'body.inc'\nENDDATA"),
+        encoding="utf-8",
+    )
+    project = client.post("/api/v1/projects", json=project_payload).json()
+    include.write_text("GRID,99,,10.,0.,0.\n", encoding="utf-8")
+
+    blocked_run = client.post(
+        f"/api/v1/projects/{project['id']}/runs",
+        json={"name": "include changed", "task_types": ["fem.model_summary"]},
+    )
+
+    assert blocked_run.status_code == 409
+    assert "SOURCE_CHANGED" in blocked_run.text
+
+
 def test_rerun_accepts_replaced_sources_and_archives_previous_run(
     client: TestClient,
     project_payload: dict[str, object],

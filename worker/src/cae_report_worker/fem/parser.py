@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from cae_report_shared.fem_includes import include_target
+
 ELEMENT_CARDS: dict[str, int] = {
     "CBAR": 1,
     "CBEAM": 1,
@@ -64,6 +66,7 @@ class FemModel:
     loads: list[dict[str, Any]] = field(default_factory=list)
     constraints: list[dict[str, Any]] = field(default_factory=list)
     connections: list[dict[str, Any]] = field(default_factory=list)
+    parameters: dict[str, str] = field(default_factory=dict)
     subcases: list[dict[str, Any]] = field(default_factory=list)
     include_files: list[str] = field(default_factory=list)
     component_names: dict[int, str] = field(default_factory=dict)
@@ -166,7 +169,16 @@ class FemModel:
         }
 
     def boundary_summary(self) -> dict[str, Any]:
-        return {"loads": self.loads, "constraints": self.constraints, "connections": self.connections}
+        inertia_relief = self.parameters.get("INREL")
+        return {
+            "loads": self.loads,
+            "constraints": self.constraints,
+            "connections": self.connections,
+            "inertia_relief": {
+                "enabled": inertia_relief not in {None, "", "0"},
+                "value": inertia_relief,
+            },
+        }
 
     def subcase_summary(self) -> dict[str, Any]:
         return {"subcases": self.subcases}
@@ -215,9 +227,9 @@ class FemParser:
                 if not content.strip():
                     continue
                 upper = content.strip().upper()
-                include_match = re.match(r"^INCLUDE\s*[= ]\s*['\"]?([^'\"]+)['\"]?", content.strip(), re.I)
-                if include_match:
-                    include_path = (resolved.parent / include_match.group(1).strip()).resolve()
+                include_name = include_target(content)
+                if include_name is not None:
+                    include_path = (resolved.parent / include_name).resolve()
                     model.include_files.append(str(include_path))
                     self._parse_file(include_path, model, visited, depth + 1, assume_bulk=bulk)
                     continue
@@ -273,6 +285,11 @@ class FemParser:
 
     def _consume(self, card: SourceCard, model: FemModel) -> None:
         name, fields = card.name, card.fields
+        if name == "PARAM":
+            parameter = _at(fields, 1).strip().upper()
+            if parameter:
+                model.parameters[parameter] = _at(fields, 2).strip()
+            return
         if name == "GRID":
             node_id = _integer(_at(fields, 1))
             if node_id:

@@ -9,6 +9,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from .main_window import MainWindow
+from .settings import DesktopSettings
 
 
 def _application_icon_path() -> Path:
@@ -26,7 +27,7 @@ def run() -> int:
     workspace = Path(os.environ.get("CAE_REPORT_WORKSPACE", "C:/CAEReportWorkbench")).resolve()
     logger = configure_json_logger("cae_report.desktop", "desktop", workspace / "app" / "logs" / "desktop.jsonl")
     logger.info("Desktop starting", extra={"event": "desktop.start"})
-    window = MainWindow(workspace)
+    window = MainWindow(workspace, DesktopSettings())
     window.setWindowIcon(icon)
     window.show()
     return app.exec()

@@ -25,16 +25,19 @@ from PySide6.QtWidgets import (
 )
 
 from .dialogs.new_project import NewProjectWizard
+from .dialogs.settings import SettingsDialog
 from .process_supervisor import ProcessSupervisor
 from .server_client import ServerClient
+from .settings import DesktopSettings
 from .style import CAE_DESKTOP_QSS
 from .title_bar import CustomTitleBar
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, workspace: Path) -> None:
+    def __init__(self, workspace: Path, settings: DesktopSettings | None = None) -> None:
         super().__init__()
         self.workspace = workspace
+        self.settings = settings or DesktopSettings()
         self.setWindowTitle("CAE 结果分析与报告工作台 (HMReport)")
         self.resize(1280, 820)
         
@@ -52,7 +55,11 @@ class MainWindow(QMainWindow):
         self.projects: list[dict[str, Any]] = []
         self.current_project: dict[str, Any] | None = None
         self.current_run: dict[str, Any] | None = None
-        self.supervisor = ProcessSupervisor(workspace, self)
+        self.supervisor = ProcessSupervisor(
+            workspace,
+            self,
+            hyperview_executable=self.settings.hyperview_executable,
+        )
         self.supervisor.server_ready.connect(self._connected)
         self.supervisor.status_changed.connect(self._process_status)
         self.supervisor.output.connect(self._log)
@@ -96,6 +103,10 @@ class MainWindow(QMainWindow):
         diagnostics_action = QAction("导出诊断包", self)
         diagnostics_action.triggered.connect(self.export_diagnostics)
         toolbar.addAction(diagnostics_action)
+
+        settings_action = QAction("设置", self)
+        settings_action.triggered.connect(self.open_settings)
+        toolbar.addAction(settings_action)
 
         delete_action = QAction("删除项目", self)
         delete_action.triggered.connect(self.delete_project)
@@ -378,6 +389,16 @@ class MainWindow(QMainWindow):
                 self.refresh()
             except Exception as exc:
                 QMessageBox.critical(self, "创建失败", str(exc))
+
+    def open_settings(self) -> None:
+        dialog = SettingsDialog(self.settings.hyperview_executable, self)
+        if not dialog.exec():
+            return
+        changed = dialog.hyperview_executable != self.settings.hyperview_executable
+        self.settings.hyperview_executable = dialog.hyperview_executable
+        self.supervisor.hyperview_executable = dialog.hyperview_executable
+        if changed:
+            QMessageBox.information(self, "设置已保存", "HyperView 路径将在下次启动应用时生效。")
 
     def control_run(self, action: str) -> None:
         if self.client is None or self.current_run is None:

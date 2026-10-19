@@ -24,3 +24,6 @@ examples/optistruct_feature_model/*.inc
 examples/optistruct_feature_model/*.manifest.json
 examples/vehicle_frame/
 /*.spec
+
+# --- Local npm lockfile artifacts --------------------------------------------
+/package-lock.json

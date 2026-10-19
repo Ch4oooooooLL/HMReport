@@ -6,6 +6,7 @@ import time
 import uuid
 from pathlib import Path
 
+import httpx
 from cae_report_shared.json_logging import configure_json_logger
 
 from .executors import TaskExecutor
@@ -78,11 +79,37 @@ class WorkerApp:
             self.executor.release_run(str(task["run_id"]))
 
     def run_forever(self) -> None:
-        self.register()
+        registered = False
+        retry_delay = max(0.5, self.poll_interval)
         while self.running:
-            worked = self.run_once()
-            if not worked:
-                time.sleep(self.poll_interval)
+            try:
+                if not registered:
+                    self.register()
+                    registered = True
+                worked = self.run_once()
+                retry_delay = max(0.5, self.poll_interval)
+                if not worked:
+                    time.sleep(self.poll_interval)
+            except httpx.HTTPError as exc:
+                if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code not in {
+                    408,
+                    429,
+                    500,
+                    502,
+                    503,
+                    504,
+                }:
+                    raise
+                registered = False
+                self.logger.warning(
+                    "Server connection interrupted; retrying",
+                    extra={
+                        "event": "worker.server_retry",
+                        "details": {"error": str(exc), "retry_delay_seconds": retry_delay},
+                    },
+                )
+                time.sleep(retry_delay)
+                retry_delay = min(30.0, retry_delay * 2)
 
     def close(self) -> None:
         self.running = False

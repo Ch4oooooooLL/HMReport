@@ -27,14 +27,18 @@ class ServerClient:
         self._post(f"/api/v1/internal/tasks/{task_id}/progress", {"worker_id": worker_id, "progress_current": current, "progress_total": total, "message": message})
 
     def complete(self, worker_id: str, task_id: str, status: str, result: dict[str, Any], error_code: str | None = None, error_message: str | None = None) -> dict[str, Any]:
-        response = self._post(f"/api/v1/internal/tasks/{task_id}/complete", {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message})
+        response = self._post(
+            f"/api/v1/internal/tasks/{task_id}/complete",
+            {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message},
+            timeout=300.0,
+        )
         return dict(response)
 
     def complete_action(self, worker_id: str, action_id: str, status: str, result: dict[str, Any], error_code: str | None = None, error_message: str | None = None) -> None:
         self._post(f"/api/v1/internal/actions/{action_id}/complete", {"worker_id": worker_id, "status": status, "result": result, "error_code": error_code, "error_message": error_message})
 
-    def _post(self, path: str, payload: dict[str, Any]) -> Any:
-        response = self.client.post(path, json=payload)
+    def _post(self, path: str, payload: dict[str, Any], *, timeout: float = 30.0) -> Any:
+        response = self.client.post(path, json=payload, timeout=timeout)
         response.raise_for_status()
         return response.json() if response.content else None
 

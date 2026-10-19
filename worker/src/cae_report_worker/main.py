@@ -37,6 +37,12 @@ def main() -> None:
         worker.run_forever()
     except KeyboardInterrupt:
         pass
+    except Exception:
+        worker.logger.exception(
+            "Worker stopped due to an unhandled exception",
+            extra={"event": "worker.unhandled_exception"},
+        )
+        raise
     finally:
         worker.close()
 
